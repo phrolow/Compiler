@@ -1,6 +1,0 @@
-#ifndef X86_64_CODES_H_PROTECTED
-#define X86_64_CODES_H_PROTECTED
-
-
-
-#endif

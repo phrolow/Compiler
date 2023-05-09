@@ -62,7 +62,4 @@ void GenerateStmts     (struct Node *node, struct List *NT, struct Compiler *com
 void GenerateGS        (struct Node *node, struct Compiler *compiler);
 void GenerateASM       (const char *filename, tree *tree, Compiler *compiler);
 
-void generateBinary    (tree *tree, Compiler *compiler);
-void generateELF       (FILE *fp);
-
 #endif //LANGUAGE_COMPILER_H

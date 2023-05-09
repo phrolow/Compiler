@@ -9,18 +9,47 @@
 #include "../Debug/debug.h"
 #include "../List/list.h"
 
+#include "x86_64.h"
+
+#define NODE_KEYW(NODE, KEYW) (NODE->val->type == KEYWORD_TYPE && NODE->val->value.keyword == KEYW)
+
+#define KEYW(NODE) ((NODE->val->type == KEYWORD_TYPE) ? NODE->val->value.keyword : 0)
 struct Compiler {
-    FILE *out;
+    char *out;
+    char *memory;
+    char *instructions;
+    char *end;
+    char *main;
+
     struct Node *node_main;
     size_t __IF_COUNTER__ ;
     size_t __WHILE_COUNTER__;
     struct List *GlobalNT;
+    struct List *local_vars;
     size_t free_memory_index;
+
+    // size_t size_lib;
+    // size_t size_code;
+    // size_t size_data;
+    // size_t size_headers;
+
+    size_t offset_data;
+
+    size_t count_var;
+    size_t count_label;
+
+    struct List *labels;
+    
+    char *ip;
 };
+
+const size_t BUFSIZE = 0x800;
+const size_t MEMORY_SIZE = 0x800;
+const size_t POISON  = 0xbaadf00dbaadf00d;
 
 int language_compile(const char *in, const char *out);
 
-struct Compiler *newCompiler(FILE *out);
+struct Compiler *newCompiler(char *out);
 void CompilerDtor(struct Compiler *compiler);
 
 int IsNum(struct Node *node);
@@ -30,6 +59,10 @@ int IsLogOper(struct Node *node);
 
 void IncreaseRBX(const size_t number, struct Compiler *compiler);
 void DecreaseRBX(const size_t number, struct Compiler *compiler);
+
+int  SearchInNametable(struct Node *node, struct List *NT);
+void PushInNametable(struct Node *node, struct List *NT);
+int  IndexNametable(struct Node *node, struct List *NT);
 
 void GenerateMark(struct Node *mark, struct Compiler *compiler);
 void GenerateMain      (struct Node *node, struct List *NT, struct Compiler *compiler);
@@ -52,15 +85,20 @@ void GenerateCond      (struct Node *node, struct List *NT, struct Compiler *com
 void GenerateIf        (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateReturn    (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateWhile     (struct Node *node, struct List *NT, struct Compiler *compiler);
-void GenerateScan      (struct Node *node, struct List *NT, struct Compiler *compiler);
-void GeneratePrint     (struct Node *node, struct List *NT, struct Compiler *compiler);
-void GenerateSqrt      (struct Node *node, struct List *NT, struct Compiler *compiler);
+// void GenerateScan      (struct Node *node, struct List *NT, struct Compiler *compiler);
+// void GeneratePrint     (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateAssign    (struct Node *node, struct List *NT, struct Compiler *compiler);
 
 void GenerateStmt      (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateStmts     (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateGS        (struct Node *node, struct Compiler *compiler);
-void GenerateASM       (const char *filename, tree *tree, Compiler *compiler);
+// void GenerateASM       (const char *filename, tree *tree, Compiler *compiler);
+
+void generateLabel(const char *format, size_t index, struct Compiler *compiler);
+size_t indexLabel (const char *format, size_t index, struct Compiler *compiler);
+
+// void generateBinary    (tree *tree, Compiler *compiler);
+// void generateELF       (FILE *fp);
 
 void generateBinary    (tree *tree, Compiler *compiler);
 void generateELF       (FILE *fp);
