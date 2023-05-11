@@ -15,10 +15,8 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     struct Node *name = node->children[LEFT];
 
-    // вытаскиваем индекс метки хуетки с листаы
-
-    // ARG_INSTR("call ну, тип rip - адрес по имени бля", name->val->value.name);
-    // INSTR("push rax");
+    BYTE1(0xe8); putAddress32(name->val->value.name, POISON, compiler); // call name->val->value.name
+    BYTE1(0x50);                                                        // push rax
 }
 
 void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compiler, size_t *num_of_params) {
@@ -36,10 +34,10 @@ void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compile
     (*num_of_params)++;
 
     GenerateExpr(node->children[LEFT], NT, compiler);
-    
-    // INSTR("pop r12");
 
-    // ARG_INSTR("mov [rbx + 8 * %lu], r12", *num_of_params);
+    BYTE2(0x41, 0x5c);                              // pop r12
+    BYTE4(0x4c, 0x89, 0x63, *num_of_params * 8);    // mov [rbx + 8 * *num_of_params], r12
+
 }
 
 void GenerateFuncDef(struct Node *node, struct List *NT, struct Compiler *compiler)

@@ -137,6 +137,9 @@ void GenerateScan(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     INSTR("call cin");
     INSTR("push rax");
+
+    INSTR("movsd [rsp], xmm2");
+    INSTR("sub rsp, 8");
 }
 
 void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -338,22 +341,24 @@ void GenerateMathOper(struct Node *node, struct Compiler *compiler)
         PRINT_D(node_err);
     }
 
-    INSTR("pop r12");
-    INSTR("pop r13");
+    INSTR("movsd xmm0, [rsp]");
+    INSTR("add rsp, 8");
+    INSTR("movsd xmm1, [rsp]");
+    INSTR("add rsp, 8");
 
     switch (KEYW(node))
     {
         case KEYW_ADD:
-            fprintf(compiler->out, "\tadd ");
+            fprintf(compiler->out, "\taddsd ");
             break;
         case KEYW_SUB:
-            fprintf(compiler->out, "\tsub ");
+            fprintf(compiler->out, "\tsubsd ");
             break;
         case KEYW_MUL:
-            fprintf(compiler->out, "\timul ");
+            fprintf(compiler->out, "\tmulsd ");
             break;
         case KEYW_DIV:
-            fprintf(compiler->out, "\tidiv ");
+            fprintf(compiler->out, "\tdivsd ");
             break;
 
         default:
@@ -362,9 +367,10 @@ void GenerateMathOper(struct Node *node, struct Compiler *compiler)
             break;
     }
 
-    fprintf(compiler->out, "r12, r13\n");
-    
-    INSTR("push r12");
+    fprintf(compiler->out, "xmm0, xmm1\n");
+
+    INSTR("movsd [rsp], xmm0");
+    INSTR("sub rsp, 8");
 }
 
 void GenerateNum(struct Node *node, struct Compiler *compiler)
@@ -377,7 +383,8 @@ void GenerateNum(struct Node *node, struct Compiler *compiler)
         PRINT_D(node_err);
     }
 
-    ARG_INSTR("push %lg", node->val->value.num);
+    ARG_INSTR("mov rax, 0x%llx", node->val->value);
+    INSTR("push rax");
 }
 
 void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -392,8 +399,10 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
         assert(index >= 1);
 
-        INSTR("pop r12");
-        ARG_INSTR("mov [rbx + 8 * %lu], r12", index - 1);
+        INSTR("movsd xmm0, [rsp]");
+        INSTR("add rsp, 8");
+
+        ARG_INSTR("movsd [rbx + 8 * %lu], xmm0", index - 1);
 
         return;
     }
@@ -406,8 +415,10 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
     GenerateExpr(node->children[RIGHT], NT, compiler);
 
-    INSTR("pop r12");
-    ARG_INSTR("mov [rbx + 8 * %lu], r12", index - 1);
+    INSTR("movsd xmm0, [rsp]");
+    INSTR("add rsp, 8");
+
+    ARG_INSTR("movsd [rbx + 8 * %lu], xmm0", index - 1);
 }
 
 void GenerateVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -420,9 +431,10 @@ void GenerateVar(struct Node *node, struct List *NT, struct Compiler *compiler) 
     {
         size_t index = IndexNametable(node, NT);
 
-        ARG_INSTR("mov r12, [rbx + 8 * %lu]", index - 1);
+        ARG_INSTR("movsd xmm0, [rbx + 8 * %lu]", index - 1);
 
-        INSTR("push r12");
+        INSTR("movsd [rsp], xmm0");
+        INSTR("sub rsp, 8");
 
         return;
     }
@@ -499,9 +511,10 @@ void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compile
 
     //INSTR("pop rax");
     
-    INSTR("pop r12");
+    INSTR("movsd xmm0, [rsp]");
+    INSTR("add rsp, 8");
 
-    ARG_INSTR("mov [rbx + 8 * %lu], r12", *num_of_params);
+    ARG_INSTR("movsd [rbx + 8 * %lu], xmm0", *num_of_params);
 }
 
 void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -520,7 +533,9 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
     struct Node *name = node->children[LEFT];
 
     ARG_INSTR("call .%s", name->val->value.name);
-    INSTR("push rax");
+    // INSTR("push rax");
+    INSTR("movsd [rsp], xmm2");
+    INSTR("sub rsp, 8");
 }
 
 void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
@@ -530,9 +545,11 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     if (!IsLogOper(node)) 
         PRINT_("There is no logical operator");
 
-    INSTR("pop r12");
-    INSTR("pop r13");
-    INSTR("cmp r12, r13");
+    INSTR("movsd xmm0, [rsp]");
+    INSTR("add rsp, 8");
+    INSTR("movsd xmm1, [rsp]");
+    INSTR("add rsp, 8");
+    INSTR("comisd xmm0, xmm1");
 
     switch (KEYW(node))
     {
@@ -614,7 +631,10 @@ void GenerateReturn(struct Node *node, struct List *NT, struct Compiler *compile
     if(node->children[LEFT]) {
         GenerateExpr(node->children[LEFT], NT, compiler);
 
-        INSTR("pop rax");
+        // INSTR("pop rax");
+
+        INSTR("movsd xmm2, [rsp]");
+        INSTR("add rsp, 8");
     }
 
     DecreaseRBX(compiler->free_memory_index, compiler);
@@ -745,9 +765,10 @@ void GenerateGlobVar(struct Node *node, struct Compiler *compiler) {
     if (SearchInNametable(node, compiler->GlobalNT)) {
         size_t index = IndexNametable(node, compiler->GlobalNT);
 
-        ARG_INSTR("mov r12, [%lu]", index - 1);
+        ARG_INSTR("movsd xmm0, [rbx + %lu * 8]", index - 1);
 
-        INSTR("push r12");
+        INSTR("sub rsp, 8");
+        INSTR("movsd [rsp], xmm0");
     }
 
     PRINT_("Global variable not found");
@@ -799,9 +820,10 @@ void InitGlobVar(struct Node *node, struct Compiler *compiler) {
 
     //fprintf(compiler->out, "pop [rbx+%lu]\n", index - 1);
 
-    INSTR("pop r12");
+    INSTR("movsd xmm0, [rsp]");
+    INSTR("add rsp, 8");
 
-    ARG_INSTR("mov [rbx + %lu * 8], r12", index - 1);
+    ARG_INSTR("mov [rbx + %lu * 8], xmm0", index - 1);
 }
 
 void GenerateGS(struct Node *node, struct Compiler *compiler) {

@@ -2,6 +2,7 @@
 #define LANGUAGE_COMPILER_H
 
 #include <math.h>
+#include <sys/mman.h>
 
 #include "../Tree/tree.h"
 #include "../Reader/reader.h"
@@ -33,7 +34,7 @@ struct Compiler {
     // size_t size_data;
     // size_t size_headers;
 
-    size_t offset_data;
+    u_int64_t offset_data;
 
     size_t count_var;
     size_t count_label;
@@ -45,7 +46,7 @@ struct Compiler {
 
 const size_t BUFSIZE = 0x800;
 const size_t MEMORY_SIZE = 0x800;
-const size_t POISON  = 0xbaadf00dbaadf00d;
+const u_int64_t POISON  = 0xbaadf00dbaadf00d;
 
 int language_compile(const char *in, const char *out);
 
@@ -94,8 +95,10 @@ void GenerateStmts     (struct Node *node, struct List *NT, struct Compiler *com
 void GenerateGS        (struct Node *node, struct Compiler *compiler);
 // void GenerateASM       (const char *filename, tree *tree, Compiler *compiler);
 
-void generateLabel(const char *format, size_t index, struct Compiler *compiler);
-size_t indexLabel (const char *format, size_t index, struct Compiler *compiler);
+void        generateLabel(const char *format, size_t index, struct Compiler *compiler);
+u_int64_t   indexLabel   (const char *format, size_t index, struct Compiler *compiler);
+void        putAddress   (const char *format, size_t index, struct Compiler *compiler);
+void        putAddress32 (const char *format, size_t index, struct Compiler *compiler);
 
 // void generateBinary    (tree *tree, Compiler *compiler);
 // void generateELF       (FILE *fp);

@@ -33,7 +33,7 @@ void generateLabel(const char *format, size_t index, struct Compiler *compiler) 
     ListTailInsert(compiler->labels, label);
 }
 
-size_t indexLabel(const char *format, size_t index, struct Compiler *compiler) {
+u_int64_t indexLabel(const char *format, size_t index, struct Compiler *compiler) {
     char name[WORD_MAX_LEN + 1] = {};
 
     sprintf(name, format, index);
@@ -51,4 +51,20 @@ size_t indexLabel(const char *format, size_t index, struct Compiler *compiler) {
     }
 
     return POISON;
+}
+
+void putAddress(const char *format, size_t index, struct Compiler *compiler) {
+    u_int64_t label_offset = indexLabel(format, index, compiler);
+    u_int64_t relative_address = (compiler->ip - compiler->out) - label_offset;
+
+    *((u_int64_t *) (compiler->ip)) = relative_address;
+    compiler->ip += 8;
+}
+
+void putAddress32(const char *format, size_t index, struct Compiler *compiler) {
+    u_int32_t label_offset = indexLabel(format, index, compiler);
+    u_int32_t relative_address = (compiler->ip - compiler->out) - label_offset;
+
+    *((u_int32_t *) (compiler->ip)) = relative_address;
+    compiler->ip += 4;
 }

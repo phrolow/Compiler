@@ -48,16 +48,18 @@ void GenerateMathOper(struct Node *node, struct Compiler *compiler)
     switch (KEYW(node))
     {
         case KEYW_ADD:
-            // fprintf(compiler->out, "\tadd ");
+            BYTE3(0x4d, 0x01, 0xec);        // add r12, r13
             break;
         case KEYW_SUB:
-            // fprintf(compiler->out, "\tsub ");
+            BYTE3(0x4d, 0x29, 0xec);        // sub r12, r13
             break;
         case KEYW_MUL:
-            // fprintf(compiler->out, "\timul ");
+            BYTE4(0x4d, 0x0f, 0xaf, 0xe5);  // imul r12, r13
             break;
         case KEYW_DIV:
-            // fprintf(compiler->out, "\tidiv ");
+            BYTE3(0x4c, 0x89, 0xe0);        // mov rax, r12
+            BYTE3(0x49, 0xf7, 0xfd);        // div r13
+            BYTE3(0x49, 0x89, 0xc4);        // mov r12, rax
             break;
 
         default:
@@ -65,10 +67,8 @@ void GenerateMathOper(struct Node *node, struct Compiler *compiler)
             
             break;
     }
-
-    // fprintf(compiler->out, "r12, r13\n");
     
-    // INSTR("push r12");
+    BYTE2(0x41, 0x54);                      // push r12
 }
 
 void GenerateNum(struct Node *node, struct Compiler *compiler)
@@ -81,7 +81,10 @@ void GenerateNum(struct Node *node, struct Compiler *compiler)
         PRINT_D(node_err);
     }
 
-    // ARG_INSTR("push %lg", node->val->value.num);
+    // TODO: переделать под инты
+
+    BYTE2(0x48, 0xb8); INT(node->val->value.num);   // mov rax, num
+    BYTE1(0x50);                                    // push rax
 }
 
 
@@ -89,9 +92,8 @@ void GenerateGlobVar(struct Node *node, struct Compiler *compiler) {
     if (SearchInNametable(node, compiler->GlobalNT)) {
         size_t index = IndexNametable(node, compiler->GlobalNT);
 
-        // ARG_INSTR("mov r12, [%lu]", index - 1);
-
-        // INSTR("push r12");
+        BYTE4(0x4c, 0x8b, 0x63, (index - 1) * 8);   // mov r12, [rbx + 8 * (index - 1)]
+        BYTE2(0x41, 0x54);                          // push r12
     }
 
     PRINT_("Global variable not found");
@@ -150,9 +152,8 @@ void GenerateVar(struct Node *node, struct List *NT, struct Compiler *compiler) 
     {
         size_t index = IndexNametable(node, NT);
 
-        // ARG_INSTR("mov r12, [rbx + 8 * %lu]", index - 1);
-
-        // INSTR("push r12");
+        BYTE4(0x4c, 0x8b, 0x63, (index - 1) * 8);   // mov r12, [rbx + 8 * (index - 1)]
+        BYTE2(0x41, 0x54);                          // push r12
 
         return;
     }
@@ -229,36 +230,34 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     if (!IsLogOper(node)) 
         PRINT_("There is no logical operator");
 
-    // INSTR("pop r12");
-    // INSTR("pop r13");
-    // INSTR("cmp r12, r13");
+    BYTE2(0x41, 0x5c);          // pop r12
+    BYTE2(0x41, 0x5d);          // pop r13
+    BYTE3(0x4d, 0x39, 0xec);    // cmp r12, r13
 
     switch (KEYW(node))
     {
         case KEYW_LESS:
-            // fprintf(compiler->out, "jbe ");
+            BYTE2(0x0f, 0x8d);  // jge
             break;
         case KEYW_LESSOREQ:
-            // fprintf(compiler->out, "jb ");
+            BYTE2(0x0f, 0x8f);  // jg
             break;
         case KEYW_NOTEQUAL:
-            // fprintf(compiler->out, "je ");
+            BYTE2(0x0f, 0x84);  // je
             break;
         case KEYW_EQUAL:
-            // fprintf(compiler->out, "jne ");
+            BYTE2(0x0f, 0x85);  // jne
             break;
         case KEYW_GREATOREQ:
-            // fprintf(compiler->out, "ja ");
+            BYTE2(0x0f, 0x8c);  // jl
             break;
         case KEYW_GREAT:
-            // fprintf(compiler->out, "jae ");
+            BYTE2(0x0f, 0x8e);  // jle
             break;
         default:
             PRINT_("Undefined operator");
             break;
     }
 
-    size_t jmp_address = indexLabel("%s_%d", num, compiler);
-
-    // ебашим (rip - jmp_address)
+    putAddress("%s_%d", num, compiler);
 }

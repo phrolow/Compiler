@@ -1,19 +1,5 @@
 #include "compiler.h"
 
-// #define INSTR(str)                          \
-//     fprintf(compiler->out, "\t%s\t\t\t; %s\n", str, __PRETTY_FUNCTION__)
-
-// #define ARG_INSTR(format, num)              \
-//     fprintf(compiler->out, "\t");           \
-//     fprintf(compiler->out, format, num);    \
-//     fprintf(compiler->out, "\t\t\t; %s\n", __PRETTY_FUNCTION__)
-
-// #define LABEL(name)                         \
-//     fprintf(compiler->out, ".");            \
-//     fprintf(compiler->out, str, num);       \
-//     fprintf(compiler->out, ":");            \
-//     fprintf(compiler->out, "\n")        
-
 // void CreateKeyword(token_t **token, KEYW keyword) {
 //     assert(token && *token);
 
@@ -158,12 +144,12 @@
 // }
 
 void IncreaseRBX(const size_t number, struct Compiler *compiler) {
-    ARG_INSTR("add rbx, %lu", number * 8);
+    BYTE4(0x48, 0x83, 0xc3, number * 8); // add rbx, number * 8
 }
 
-// void DecreaseRBX(const size_t number, struct Compiler *compiler) {
-//     ARG_INSTR("sub rbx, %lu", number * 8);
-// }
+void DecreaseRBX(const size_t number, struct Compiler *compiler) {
+    BYTE4(0x48, 0x83, 0xeb, number * 8); // sub rbx, number * 8
+}
 
 // void GenerateGlobExpr(struct Node *node, struct Compiler *compiler) {
 //     if (KEYW(node) == KEYW_CALL) {
@@ -305,10 +291,10 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
 
     generateMemory(compiler);
 
-    // INSTR("call .main\n");
-    // INSTR("mov rax, 0x3c");
-    // INSTR("xor rdi, rdi");
-    // INSTR("syscall");
+    BYTE1(0xe8); putAddress("main", POISON, compiler);  // call main
+    BYTE7(0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00);    // mov rax, 0x3c
+    BYTE3(0x48, 0x31, 0xff);                            // xor rdi, rdi
+    BYTE2(0x0f, 0x05);                                  // syscall
 
     while (node->children[RIGHT])
         node = node->children[RIGHT];
@@ -350,9 +336,8 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
 }
 
 void generateMemory(struct Compiler *compiler) {
-    // mov rbx, rip;
-
-    // jmp MEMORY_SIZE (относительный ессно)
+    BYTE3(0x48, 0x89, 0xc3);                                                                // mov rbx, rip
+    BYTE2(0x0f, 0xeb); *((u_int64_t *) (compiler->ip)) = MEMORY_SIZE; compiler->ip += 8;       // skip data space (with jmp)
 
     compiler->memory = compiler->ip;
 
@@ -371,9 +356,9 @@ void InitGlobVar(struct Node *node, struct Compiler *compiler) {
 
     GenerateGlobExpr(node->children[RIGHT], compiler);
 
-    // INSTR("pop r12");
-
-    // ARG_INSTR("mov [rbx + %lu * 8], r12", index - 1);
+    BYTE2(0x41, 0x5c);                          // pop r12
+    BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
+                                                // risk if there're 17 or more global vars
 }
 
 void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -388,8 +373,9 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
         assert(index >= 1);
 
-        // INSTR("pop r12");
-        // ARG_INSTR("mov [rbx + 8 * %lu], r12", index - 1);
+        BYTE2(0x41, 0x5c);                          // pop r12
+        BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
+                                                    // risk if there're 17 or more global vars
 
         return;
     }
@@ -402,6 +388,7 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
     GenerateExpr(node->children[RIGHT], NT, compiler);
 
-    // INSTR("pop r12");
-    // ARG_INSTR("mov [rbx + 8 * %lu], r12", index - 1);
+    BYTE2(0x41, 0x5c);                          // pop r12
+    BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
+                                                // risk if there're 17 or more global vars
 }

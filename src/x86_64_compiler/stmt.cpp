@@ -43,8 +43,9 @@ void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
         GenerateCond(condition, NT, compiler, "ELSE", counter);
         GenerateStmts(if_stmts, NT, compiler);
 
-        // ARG_INSTR("jmp .END_IF_%lu", counter);
-        // fprintf(compiler->out, ".ELSE_%lu:\n", counter);
+        BYTE2(0x0f, 0xeb); putAddress("END_IF_%lu", counter, compiler);   // jmp END_IF_counter
+
+        generateLabel("ELSE_%lu", counter, compiler);
 
         GenerateStmts(else_stmts, NT, compiler);
     }
@@ -54,7 +55,7 @@ void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
         GenerateStmts(if_stmts, NT, compiler);
     }
 
-    // fprintf(compiler->out, ".END_IF_%lu:\n", counter);
+    generateLabel("END_IF_%lu", counter, compiler);
 }
 
 void GenerateCond(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
@@ -70,19 +71,12 @@ void GenerateWhile(struct Node *node, struct List *NT, struct Compiler *compiler
 
     size_t counter = compiler->__WHILE_COUNTER__++;
 
-    // fprintf(compiler->out, ".WHILE_%d:\n", counter);
-
     generateLabel("WHILE_%lu", counter, compiler);
 
     GenerateCond(condition, NT, compiler, "END_WHILE", counter);
     GenerateStmts(while_stmts, NT, compiler);
 
-    // fprintf(compiler->out, ".JMP WHILE_%d:\n", counter);
-    // fprintf(compiler->out, ".END_WHILE_%d:\n", counter);
-
-    size_t index = indexLabel("WHILE_%lu", counter, compiler);
-
-    // jmp rip - index
+    BYTE2(0x0f, 0xeb); putAddress("WHILE_%lu", counter, compiler);  // jmp WHILE_counter
 
     generateLabel("END_WHILE_%lu", counter, compiler);
 }
@@ -96,10 +90,10 @@ void GenerateReturn(struct Node *node, struct List *NT, struct Compiler *compile
     if(node->children[LEFT]) {
         GenerateExpr(node->children[LEFT], NT, compiler);
 
-        // INSTR("pop rax");
+        BYTE1(0x58);    // pop rax
     }
 
     DecreaseRBX(compiler->free_memory_index, compiler);
 
-    // INSTR("ret");
+    BYTE1(0xc3);        // ret
 }
