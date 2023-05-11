@@ -259,5 +259,9 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
             break;
     }
 
-    putAddress("%s_%d", num, compiler);
+    char name[WORD_MAX_LEN + 1] = {};
+
+    sprintf(name, "%s_%d", mark, num);
+
+    putAddress(name, POISON, compiler);
 }

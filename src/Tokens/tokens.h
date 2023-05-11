@@ -11,7 +11,7 @@
 #define DEF_OPER(name, num, sign) KEYW_##name = num,
 #define DEF_HELP(name, num, sign) KEYW_##name = num,
 
-const size_t WORD_MAX_LEN = 8;
+const size_t WORD_MAX_LEN = 0x0f;
 const double TOKEN_POISON = 0xDEAD;
 const size_t MIN_CAPACITY = 0x10;
 const size_t CAPACITY_MULTIPLIER = 2;

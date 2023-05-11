@@ -41,14 +41,14 @@ u_int64_t indexLabel(const char *format, size_t index, struct Compiler *compiler
     struct List *labels = compiler->labels;
 
     int next = 0;
-
-    while(labels->next[next]) {
+    
+    do {
         next = labels->next[next];
 
         if(!strcmp(name, labels->data[next].name)) {
             return labels->data[next].index;
         }
-    }
+    } while(labels->next[next]);
 
     return POISON;
 }

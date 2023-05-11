@@ -13,19 +13,24 @@ int language_compile(const char *in, const char *out) {
     char *buf = (char*) calloc(BUFSIZE, sizeof(char));
 
     memset(buf, 0xC3, BUFSIZE);                         // С3 - ret
-    buf[0] = 0xCC;                                      // debug (int 03)
 
-    Compiler *compiler = newCompiler(buf + 1);
+    Compiler *compiler = newCompiler(buf);
 
     TreeDump(expression);
 
     generateBinary(expression, compiler);
 
-    mprotect(buf, BUFSIZE, PROT_EXEC);
+    // mprotect(buf, BUFSIZE, PROT_EXEC | PROT_WRITE);
 
-    void (*func)() = (void (*)()) buf;
+    // void (*func)() = (void (*)()) buf;
 
-    (*func)();
+    // (*func)();
+
+    FILE *bin = fopen("binary", "wb");
+
+    fwrite(buf, sizeof(char), BUFSIZE, bin);
+
+    fclose(bin);
 
     TreeDtor(expression);
 

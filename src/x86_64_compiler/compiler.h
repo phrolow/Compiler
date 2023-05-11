@@ -44,7 +44,7 @@ struct Compiler {
     char *ip;
 };
 
-const size_t BUFSIZE = 0x800;
+const size_t BUFSIZE = 0x1000;
 const size_t MEMORY_SIZE = 0x800;
 const u_int64_t POISON  = 0xbaadf00dbaadf00d;
 
@@ -105,5 +105,7 @@ void        putAddress32 (const char *format, size_t index, struct Compiler *com
 
 void generateBinary    (tree *tree, Compiler *compiler);
 void generateELF       (FILE *fp);
+
+void generateMemory(struct Compiler *compiler);
 
 #endif //LANGUAGE_COMPILER_H

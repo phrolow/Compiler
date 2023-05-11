@@ -15,7 +15,7 @@ struct Compiler *newCompiler(char *out) {
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = 0;
-    compiler->ip = NULL;
+    compiler->ip = out;
 
     // compiler->size_lib = 0;
     // compiler->size_code = 0;
@@ -27,7 +27,7 @@ struct Compiler *newCompiler(char *out) {
     compiler->count_var = 0;
     compiler->count_label = 0;
 
-    compiler->labels = NULL;
+    compiler->labels = newList();
 
     return compiler;
 }
@@ -46,7 +46,7 @@ void CompilerDtor(struct Compiler *compiler) {
     ListDtor(compiler->GlobalNT);
     compiler->GlobalNT = NULL;
 
-    ListDtor(compiler->local_vars);
+    //ListDtor(compiler->local_vars);
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = POISON;
