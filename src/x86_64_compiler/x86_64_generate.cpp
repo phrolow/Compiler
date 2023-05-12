@@ -146,6 +146,14 @@ void generateBinary(tree *tree, Compiler *compiler) {
 
     GenerateGS(tree->root, compiler);
 
+    ListDtor(compiler->GlobalNT);
+
+    compiler->ip = compiler->out;
+
+    compiler->GlobalNT = newList();
+
+    GenerateGS(tree->root, compiler);
+
     // generateElfTail(compiler);
 }
 
@@ -207,9 +215,9 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
 void generateMemory(struct Compiler *compiler) {
     compiler->memory = compiler->ip;
 
-    BYTE3(0x48, 0x89, 0xc3);                                                                        // mov rbx, rip
+    BYTE7(0x48, 0x8d, 0x1d, 0x00, 0x00, 0x00, 0x00);                                                // lea rbx, [rip]
     BYTE1(0xcc);                                                                                    // int 03
-    BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE - 9; compiler->ip += 8;              // skip data space (with jmp) 
+    BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE - 13;                                // skip data space (with jmp) 
                                                                                                     // 9 is num of already printed instructions
     compiler->ip = compiler->memory + MEMORY_SIZE;                                  
 }

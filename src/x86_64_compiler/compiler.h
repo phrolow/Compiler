@@ -98,7 +98,7 @@ void GenerateGS        (struct Node *node, struct Compiler *compiler);
 void        generateLabel(const char *format, size_t index, struct Compiler *compiler);
 u_int64_t   indexLabel   (const char *format, size_t index, struct Compiler *compiler);
 void        putAddress   (const char *format, size_t index, struct Compiler *compiler);
-void        putAddress32 (const char *format, size_t index, struct Compiler *compiler);
+void        putAddress64 (const char *format, size_t index, struct Compiler *compiler);
 
 // void generateBinary    (tree *tree, Compiler *compiler);
 // void generateELF       (FILE *fp);

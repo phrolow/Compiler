@@ -15,7 +15,7 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     struct Node *name = node->children[LEFT];
 
-    BYTE1(0xe8); putAddress32(name->val->value.name, POISON, compiler); // call name->val->value.name
+    BYTE1(0xe8); putAddress(name->val->value.name, POISON, compiler); // call name->val->value.name
     BYTE1(0x50);                                                        // push rax
 }
 
@@ -50,11 +50,11 @@ void GenerateFuncDef(struct Node *node, struct List *NT, struct Compiler *compil
             compiler->node_main = node;
             return;
         }
-        else {
-            PRINT_("Repeating main");
+        // else {
+        //     PRINT_("Repeating main");
 
-            exit(1);
-        }
+        //     exit(1);
+        // }
     }
 
     struct Node *params = func->children[RIGHT];
@@ -98,6 +98,8 @@ void GenerateMain(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     struct Node *func = node->children[LEFT];
     struct Node *main = func->children[LEFT];
+
+    printf("%llx\n", compiler->ip - compiler->out);
 
     GenerateMark(main, compiler);
     IncreaseRBX(gettail(compiler->GlobalNT) + 1, compiler);

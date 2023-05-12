@@ -30,6 +30,9 @@ void ListTailInsert(list *list, elem_t a) {
 
     strcpy(list->data[free].name, a.name);
 
+    if(a.index)
+        list->data[free].index = a.index;   // x86_64 modification
+
     list->Tail = free;
 }
 

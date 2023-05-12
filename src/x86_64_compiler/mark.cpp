@@ -21,6 +21,9 @@ void GenerateMark(struct Node *mark, struct Compiler *compiler) {
 }
 
 void generateLabel(const char *format, size_t index, struct Compiler *compiler) {
+    if(indexLabel(format, index, compiler) != POISON)
+        return;
+
     name_t label = {};
 
     char name[WORD_MAX_LEN + 1] = {};
@@ -40,31 +43,28 @@ u_int64_t indexLabel(const char *format, size_t index, struct Compiler *compiler
 
     struct List *labels = compiler->labels;
 
-    int next = 0;
-    
-    do {
-        next = labels->next[next];
+    int num = ListIndexFirst(labels, name);
 
-        if(!strcmp(name, labels->data[next].name)) {
-            return labels->data[next].index;
-        }
-    } while(labels->next[next]);
+    if(num == -1)
+        return POISON;
 
-    return POISON;
+    name_t *label = labels->data + num;
+
+    return label->index;
+}
+
+void putAddress64(const char *format, size_t index, struct Compiler *compiler) {
+    u_int64_t label_offset = indexLabel(format, index, compiler);
+    u_int64_t relative_address = label_offset - (compiler->ip - compiler->out);
+
+    *((u_int64_t *) (compiler->ip)) = relative_address - sizeof(relative_address);
+    compiler->ip += sizeof(u_int64_t);
 }
 
 void putAddress(const char *format, size_t index, struct Compiler *compiler) {
-    u_int64_t label_offset = indexLabel(format, index, compiler);
-    u_int64_t relative_address = (compiler->ip - compiler->out) - label_offset;
-
-    *((u_int64_t *) (compiler->ip)) = relative_address;
-    compiler->ip += 8;
-}
-
-void putAddress32(const char *format, size_t index, struct Compiler *compiler) {
     u_int32_t label_offset = indexLabel(format, index, compiler);
-    u_int32_t relative_address = (compiler->ip - compiler->out) - label_offset;
+    u_int32_t relative_address = label_offset - (compiler->ip - compiler->out);
 
-    *((u_int32_t *) (compiler->ip)) = relative_address;
-    compiler->ip += 4;
+    *((u_int32_t *) (compiler->ip)) = relative_address - sizeof(relative_address);
+    compiler->ip += sizeof(u_int32_t);
 }

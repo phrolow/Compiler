@@ -14,7 +14,7 @@ int language_compile(const char *in, const char *out) {
 
     memset(buf, 0xC3, BUFSIZE);                         // С3 - ret
 
-    Compiler *compiler = newCompiler(buf);
+    Compiler *compiler = newCompiler(buf);              // save labels
 
     TreeDump(expression);
 

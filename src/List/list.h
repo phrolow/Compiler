@@ -20,7 +20,7 @@
 
 struct name_t
 {
-    size_t index;
+    u_int64_t index;
     char name[WORD_MAX_LEN + 1];
 };
 
