@@ -45,12 +45,14 @@ struct Compiler {
 };
 
 const size_t BUFSIZE = 0x1000;
+const size_t BUF_ALIGNMENT = 0x1000;
 const size_t MEMORY_SIZE = 0x800;
 const u_int64_t POISON  = 0xbaadf00dbaadf00d;
 
 int language_compile(const char *in, const char *out);
 
 struct Compiler *newCompiler(char *out);
+void reinitCompiler(struct Compiler *compiler, char *out);
 void CompilerDtor(struct Compiler *compiler);
 
 int IsNum(struct Node *node);

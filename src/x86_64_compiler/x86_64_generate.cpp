@@ -148,7 +148,7 @@ void generateBinary(tree *tree, Compiler *compiler) {
 
     ListDtor(compiler->GlobalNT);
 
-    compiler->ip = compiler->out;
+    reinitCompiler(compiler, compiler->out);
 
     compiler->GlobalNT = newList();
 

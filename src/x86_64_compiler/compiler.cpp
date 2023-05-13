@@ -32,6 +32,33 @@ struct Compiler *newCompiler(char *out) {
     return compiler;
 }
 
+void reinitCompiler(Compiler *compiler, char *out) {
+    compiler->out = out;
+
+    compiler->memory = NULL;
+    compiler->instructions = NULL;
+    compiler->end = NULL;
+
+    compiler->node_main = NULL;
+    compiler->__IF_COUNTER__ = 0;
+    compiler->__WHILE_COUNTER__ = 0;
+    compiler->GlobalNT = NULL;
+    compiler->local_vars = NULL;
+
+    compiler->free_memory_index = 0;
+    compiler->ip = out;
+
+    // compiler->size_lib = 0;
+    // compiler->size_code = 0;
+    // compiler->size_data = 0;
+    // compiler->size_headers = 0;
+
+    compiler->offset_data = 0;
+
+    compiler->count_var = 0;
+    compiler->count_label = 0;
+}
+
 void CompilerDtor(struct Compiler *compiler) {
     compiler->out = NULL;
 

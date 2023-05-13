@@ -99,8 +99,6 @@ void GenerateMain(struct Node *node, struct List *NT, struct Compiler *compiler)
     struct Node *func = node->children[LEFT];
     struct Node *main = func->children[LEFT];
 
-    printf("%llx\n", compiler->ip - compiler->out);
-
     GenerateMark(main, compiler);
     IncreaseRBX(gettail(compiler->GlobalNT) + 1, compiler);
 
