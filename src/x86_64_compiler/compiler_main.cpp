@@ -12,7 +12,7 @@ int language_compile(const char *in, const char *out) {
 
     char *buf = (char*) aligned_alloc(BUF_ALIGNMENT, BUFSIZE * sizeof(char));
 
-    memset(buf, 0xC3, BUFSIZE);                         // С3 - ret
+    memset(buf + HEADER_SIZE + 1, 0xC3, BUFSIZE - HEADER_SIZE - 1);                         // С3 - ret
 
     Compiler *compiler = newCompiler(buf);              // save labels
 
@@ -20,13 +20,11 @@ int language_compile(const char *in, const char *out) {
 
     generateBinary(expression, compiler);
 
-    int shit = mprotect(buf, BUFSIZE, PROT_EXEC | PROT_WRITE | PROT_READ);
+    // int shit = mprotect(buf, BUFSIZE, PROT_EXEC | PROT_WRITE | PROT_READ);
 
-    void (* func) (void) = (void (*) (void)) (buf);
+    // void (* func) (void) = (void (*) (void)) (buf);
 
-    func();
-
-    printf("a");
+    // func();
 
     FILE *bin = fopen("binary", "wb");
 

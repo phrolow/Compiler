@@ -3,6 +3,7 @@
 struct Compiler *newCompiler(char *out) {
     struct Compiler *compiler = (Compiler*) malloc(sizeof(Compiler));
 
+    compiler->header = NULL;
     compiler->memory = NULL;
     compiler->instructions = NULL;
     compiler->end = NULL;
@@ -34,6 +35,8 @@ struct Compiler *newCompiler(char *out) {
 
 void reinitCompiler(Compiler *compiler, char *out) {
     compiler->out = out;
+    
+    compiler->ip = compiler->memory;
 
     compiler->memory = NULL;
     compiler->instructions = NULL;
@@ -46,7 +49,6 @@ void reinitCompiler(Compiler *compiler, char *out) {
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = 0;
-    compiler->ip = out;
 
     // compiler->size_lib = 0;
     // compiler->size_code = 0;

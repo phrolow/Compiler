@@ -17,6 +17,7 @@
 #define KEYW(NODE) ((NODE->val->type == KEYWORD_TYPE) ? NODE->val->value.keyword : 0)
 struct Compiler {
     char *out;
+    char *header;
     char *memory;
     char *instructions;
     char *end;
@@ -46,8 +47,11 @@ struct Compiler {
 
 const size_t BUFSIZE = 0x1000;
 const size_t BUF_ALIGNMENT = 0x1000;
+const size_t HEADER_SIZE = 0x78;
 const size_t MEMORY_SIZE = 0x800;
 const u_int64_t POISON  = 0xbaadf00dbaadf00d;
+
+const char * const HEADER = "src/Libs/Header";
 
 int language_compile(const char *in, const char *out);
 

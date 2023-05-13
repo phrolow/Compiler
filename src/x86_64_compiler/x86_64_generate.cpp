@@ -131,16 +131,34 @@ void DecreaseRBX(const size_t number, struct Compiler *compiler) {
     BYTE4(0x48, 0x83, 0xeb, number * 8); // sub rbx, number * 8
 }
 
-// void generateElfHead(Compiler *compiler) {
+void generateElfHead(Compiler *compiler) {
+    compiler->header = compiler->ip;
 
-// }
+    FILE *header = fopen(HEADER, "r");
+
+    fread(compiler->header, HEADER_SIZE, sizeof(char), header);
+
+    fclose(header);
+
+    compiler->ip += HEADER_SIZE;
+}
+
+void generateMemory(struct Compiler *compiler) {
+    compiler->memory = compiler->ip;
+
+    BYTE7(0x48, 0x8d, 0x1d, 0x00, 0x00, 0x00, 0x00);                                                // lea rbx, [rip]
+    BYTE1(0xcc);                                                                                    // int 03
+    BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE - 13;                                // skip data space (with jmp) 
+                                                                                                    // 9 is num of already printed instructions
+    compiler->ip = compiler->memory + MEMORY_SIZE;                                  
+}
 
 // void generateElfTail(Compiler *compiler) {
     
 // }
 
 void generateBinary(tree *tree, Compiler *compiler) {
-    // generateElfHead(compiler);
+    generateElfHead(compiler);
 
     compiler->GlobalNT = newList();
 
@@ -210,16 +228,6 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
     GenerateMain(compiler->node_main, NT, compiler);
     
     ListDtor(NT);
-}
-
-void generateMemory(struct Compiler *compiler) {
-    compiler->memory = compiler->ip;
-
-    BYTE7(0x48, 0x8d, 0x1d, 0x00, 0x00, 0x00, 0x00);                                                // lea rbx, [rip]
-    BYTE1(0xcc);                                                                                    // int 03
-    BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE - 13;                                // skip data space (with jmp) 
-                                                                                                    // 9 is num of already printed instructions
-    compiler->ip = compiler->memory + MEMORY_SIZE;                                  
 }
 
 void InitGlobVar(struct Node *node, struct Compiler *compiler) {
