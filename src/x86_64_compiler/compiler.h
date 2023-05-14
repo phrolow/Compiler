@@ -1,6 +1,7 @@
 #ifndef LANGUAGE_COMPILER_H
 #define LANGUAGE_COMPILER_H
 
+#include <elf.h>
 #include <math.h>
 #include <sys/mman.h>
 
@@ -45,13 +46,15 @@ struct Compiler {
     char *ip;
 };
 
-const size_t BUFSIZE = 0x1000;
+const size_t BUFSIZE = 0x2000;
 const size_t BUF_ALIGNMENT = 0x1000;
-const size_t HEADER_SIZE = 0x78;
+const size_t HEADER_SIZE = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr);  // deprecated                      
 const size_t MEMORY_SIZE = 0x800;
+const size_t SEGMENT_START = 0x1000;
+
 const u_int64_t POISON  = 0xbaadf00dbaadf00d;
 
-const char * const HEADER = "src/Libs/Header";
+const char * const HEADER = "src/Libs/Header";          // deprecated
 
 int language_compile(const char *in, const char *out);
 
