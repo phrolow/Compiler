@@ -48,33 +48,6 @@ void CreateKeyword(token_t **token, KEYW keyword) {
 //     INSTR("push rax");
 // }
 
-// void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler) {
-//     TREE_ERROR node_err = NodeVerify(node);
-
-//     if(node_err) {
-//         PRINT_("Something wrong with node! Code of error:");
-
-//         PRINT_D(node_err);
-//     }
-
-//     if(!NT) {
-//         PRINT_("Null name table!");
-//     }
-
-//     if(!compiler) {
-//         PRINT_("Null struct compiler!");
-//     }
-
-//     if (!node->children[LEFT]) {
-//         PRINT_("No arg for print");
-//     }
-
-//     GenerateExpr(node->children[LEFT], NT, compiler);
-
-//     INSTR("call cout");
-//     INSTR("add rsp, 8");
-// }
-
 int IsNum(struct Node *node) {
     TREE_ERROR node_err = NodeVerify(node);
 
@@ -191,10 +164,23 @@ void generateMemory(struct Compiler *compiler) {
     compiler->memory = compiler->ip;
 
     BYTE7(0x48, 0x8d, 0x1d, 0x00, 0x00, 0x00, 0x00);                                                // lea rbx, [rip]
-    BYTE1(0xcc);                                                                                    // int 03
-    BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE - 13;                                // skip data space (with jmp) 
+    BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE + LIBS_SIZE - 12;                    // skip data and libs space (with jmp) 
                                                                                                     // 9 is num of already printed instructions
     compiler->ip = compiler->memory + MEMORY_SIZE;                                  
+}
+
+void generateLibs      (struct Compiler *compiler) {
+    compiler->libs = compiler->ip;
+
+    generateLabel("decimal", POISON, compiler);
+
+    FILE *decimal_out = fopen("src/Libs/decimal", "r");
+
+    fread(compiler->ip, sizeof(char), OUT_SIZE, decimal_out);
+
+    fclose(decimal_out);
+
+    compiler->ip += LIBS_SIZE;
 }
 
 void generateBinary(tree *tree, Compiler *compiler) {
@@ -223,6 +209,8 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
     }
 
     generateMemory(compiler);
+
+    generateLibs(compiler);
 
     compiler->instructions = compiler->ip;
 

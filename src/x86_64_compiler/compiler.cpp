@@ -39,6 +39,7 @@ void reinitCompiler(Compiler *compiler, char *out) {
     compiler->ip = compiler->memory;
 
     compiler->memory = NULL;
+    compiler->libs = NULL;
     compiler->instructions = NULL;
     compiler->end = NULL;
 
@@ -65,6 +66,7 @@ void CompilerDtor(struct Compiler *compiler) {
     compiler->out = NULL;
 
     compiler->memory = NULL;
+    compiler->libs = NULL;
     compiler->instructions = NULL;
     compiler->end = NULL;
     

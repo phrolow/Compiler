@@ -207,9 +207,9 @@ void GenerateStmt  (struct Node *node, struct List *NT, struct Compiler *compile
         // case KEYW_SCAN:
         //     GenerateScan  (node, NT, compiler);
         //     break;
-        // case KEYW_PRINT:
-        //     GeneratePrint (node, NT, compiler);
-        //     break;
+        case KEYW_PRINT:
+            GeneratePrint (node, NT, compiler);
+            break;
         case KEYW_ADD:
         case KEYW_SUB:
         case KEYW_MUL:
@@ -264,4 +264,34 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     sprintf(name, "%s_%d", mark, num);
 
     putAddress(name, POISON, compiler);
+}
+
+void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler) {
+    TREE_ERROR node_err = NodeVerify(node);
+
+    if(node_err) {
+        PRINT_("Something wrong with node! Code of error:");
+
+        PRINT_D(node_err);
+    }
+
+    if(!NT) {
+        PRINT_("Null name table!");
+    }
+
+    if(!compiler) {
+        PRINT_("Null struct compiler!");
+    }
+
+    if (!node->children[LEFT]) {
+        PRINT_("No arg for print");
+    }
+
+    GenerateExpr(node->children[LEFT], NT, compiler);
+
+    // INSTR("call cout");
+    // INSTR("add rsp, 8");
+
+    BYTE1(0xe8); putAddress("decimal", POISON, compiler); // call decimal
+    BYTE4(0x48, 0x83, 0xc4, 0x08);                        // add rsp, 8
 }

@@ -11,8 +11,6 @@ int main(int argc, char **argv) {
 
     language_compile(argv[1], ASM_PATH);
     printf("Compiled\n");
-    system("Y:/gthb/Language/Exes/asm.exe ../asm.asm ../bin1.bin");
-    system("Y:/gthb/Language/Exes/cpu.exe ../bin1.bin");
 
     return 0;
 }
