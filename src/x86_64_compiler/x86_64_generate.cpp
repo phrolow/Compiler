@@ -19,35 +19,6 @@ void CreateKeyword(token_t **token, KEYW keyword) {
     (*token)->value.keyword = keyword;
 }
 
-// void GenerateScan(struct Node *node, struct List *NT, struct Compiler *compiler) {
-//     TREE_ERROR node_err = NodeVerify(node);
-
-//     if(node_err) {
-//         PRINT_("Something wrong with node! Code of error:");
-
-//         PRINT_D(node_err);
-//     }
-
-//     if(!NT) {
-//         PRINT_("Null name table!");
-//     }
-
-//     if(!compiler) {
-//         PRINT_("Null struct compiler!");
-//     }
-
-//     if (!node->children[LEFT]) {
-//         PRINT_("No arg for scan");
-//     }
-
-//     PushInNametable(node->children[LEFT], NT);
-
-//     size_t index = IndexNametable(node->children[LEFT], NT);
-
-//     INSTR("call cin");
-//     INSTR("push rax");
-// }
-
 int IsNum(struct Node *node) {
     TREE_ERROR node_err = NodeVerify(node);
 
@@ -180,7 +151,17 @@ void generateLibs      (struct Compiler *compiler) {
 
     fclose(decimal_out);
 
-    compiler->ip += LIBS_SIZE;
+    compiler->ip += (OUT_SIZE / LIB_ALIGNMENT + 1) * LIB_ALIGNMENT;
+
+    generateLabel("in", POISON, compiler);
+
+    FILE *in = fopen("src/Libs/in", "r");
+
+    fread(compiler->ip, sizeof(char), IN_SIZE, in);
+
+    fclose(in);
+
+    compiler->ip = compiler->libs + LIBS_SIZE;
 }
 
 void generateBinary(tree *tree, Compiler *compiler) {

@@ -43,8 +43,10 @@ struct Compiler {
 };
 
 const size_t BUFSIZE = 0x3000;
+const size_t IN_SIZE = 0x61;
 const size_t BUF_ALIGNMENT = 0x1000;
-const size_t HEADER_SIZE = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr); 
+const size_t HEADER_SIZE = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr);
+const size_t LIB_ALIGNMENT = 0x400; 
 const size_t LIBS_SIZE = 0x800;                   
 const size_t MEMORY_SIZE = 0x800;
 const size_t OUT_SIZE = 0x8D;
@@ -91,14 +93,13 @@ void GenerateCond      (struct Node *node, struct List *NT, struct Compiler *com
 void GenerateIf        (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateReturn    (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateWhile     (struct Node *node, struct List *NT, struct Compiler *compiler);
-// void GenerateScan      (struct Node *node, struct List *NT, struct Compiler *compiler);
+void GenerateScan      (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GeneratePrint     (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateAssign    (struct Node *node, struct List *NT, struct Compiler *compiler);
 
 void GenerateStmt      (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateStmts     (struct Node *node, struct List *NT, struct Compiler *compiler);
 void GenerateGS        (struct Node *node, struct Compiler *compiler);
-// void GenerateASM       (const char *filename, tree *tree, Compiler *compiler);
 
 void        generateLabel(const char *format, size_t index, struct Compiler *compiler);
 u_int64_t   indexLabel   (const char *format, size_t index, struct Compiler *compiler);

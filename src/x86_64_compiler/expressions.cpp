@@ -204,9 +204,9 @@ void GenerateStmt  (struct Node *node, struct List *NT, struct Compiler *compile
         case KEYW_RETURN:
             GenerateReturn(node, NT, compiler);
             break;
-        // case KEYW_SCAN:
-        //     GenerateScan  (node, NT, compiler);
-        //     break;
+        case KEYW_SCAN:
+            GenerateScan  (node, NT, compiler);
+            break;
         case KEYW_PRINT:
             GeneratePrint (node, NT, compiler);
             break;
@@ -289,9 +289,133 @@ void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler
 
     GenerateExpr(node->children[LEFT], NT, compiler);
 
-    // INSTR("call cout");
-    // INSTR("add rsp, 8");
-
     BYTE1(0xe8); putAddress("decimal", POISON, compiler); // call decimal
     BYTE4(0x48, 0x83, 0xc4, 0x08);                        // add rsp, 8
+}
+
+void GenerateScan(struct Node *node, struct List *NT, struct Compiler *compiler) {
+    TREE_ERROR node_err = NodeVerify(node);
+
+    if(node_err) {
+        PRINT_("Something wrong with node! Code of error:");
+
+        PRINT_D(node_err);
+    }
+
+    if(!NT) {
+        PRINT_("Null name table!");
+    }
+
+    if(!compiler) {
+        PRINT_("Null struct compiler!");
+    }
+
+    if (!node->children[LEFT]) {
+        PRINT_("No arg for scan");
+    }
+
+    PushInNametable(node->children[LEFT], NT);
+
+    size_t index = IndexNametable(node->children[LEFT], NT);
+
+    BYTE1(0xe8); putAddress("in", POISON, compiler);            // call in
+    BYTE4(0x48, 0x89, 0x43, (index - 1));                       // mov [rbx + (index - 1)], rax
+}
+
+void GenerateAssign(struct Node *node, struct List *NT, struct Compiler *compiler) {
+    TREE_ERROR node_err = NodeVerify(node);
+
+    if(node_err) {
+        PRINT_("Something wrong with node! Code of error:");
+
+        PRINT_D(node_err);
+    }
+
+    if(!compiler)
+        PRINT_("No struct compiler");
+
+    if (!NT) {
+        InitGlobVar(node, compiler);
+        
+    } else {
+        InitVar(node, NT, compiler);
+    }
+}
+
+void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
+    struct Node *else_node   = node->children[RIGHT];
+
+    struct Node *condition  = node->children[LEFT];
+
+    struct Node *if_stmts = NULL,
+                *else_stmts = NULL;
+
+    if(!NODE_KEYW(else_node, KEYW_ELSE)) {
+        if_stmts = else_node;
+    }
+    else {
+        if_stmts = else_node->children[LEFT];
+        else_stmts = else_node->children[RIGHT];
+    }
+
+    size_t counter = compiler->__IF_COUNTER__++;
+
+    if (else_stmts)
+    {
+        GenerateCond(condition, NT, compiler, "ELSE", counter);
+        GenerateStmts(if_stmts, NT, compiler);
+
+        BYTE2(0x0f, 0xeb); putAddress("END_IF_%lu", counter, compiler);   // jmp END_IF_counter
+
+        generateLabel("ELSE_%lu", counter, compiler);
+
+        GenerateStmts(else_stmts, NT, compiler);
+    }
+    else
+    {
+        GenerateCond(condition, NT, compiler, "END_IF", counter);
+        GenerateStmts(if_stmts, NT, compiler);
+    }
+
+    generateLabel("END_IF_%lu", counter, compiler);
+}
+
+void GenerateCond(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
+    GenerateExpr(node->children[LEFT],  NT, compiler);
+    GenerateExpr(node->children[RIGHT], NT, compiler);
+    GenerateJump(node, NT, compiler, mark, num);
+}
+
+void GenerateWhile(struct Node *node, struct List *NT, struct Compiler *compiler)
+{
+    struct Node *condition = node->children[LEFT];
+    struct Node *while_stmts = node->children[RIGHT];
+
+    size_t counter = compiler->__WHILE_COUNTER__++;
+
+    generateLabel("WHILE_%lu", counter, compiler);
+
+    GenerateCond(condition, NT, compiler, "END_WHILE", counter);
+    GenerateStmts(while_stmts, NT, compiler);
+
+    BYTE1(0xe9); putAddress("WHILE_%lu", counter, compiler);  // jmp WHILE_counter
+
+    generateLabel("END_WHILE_%lu", counter, compiler);
+}
+
+void GenerateReturn(struct Node *node, struct List *NT, struct Compiler *compiler)
+{
+    if (!NODE_KEYW(node, KEYW_RETURN)) {
+        PRINT_("No return statement");
+    }
+
+    if(node->children[LEFT]) {
+        GenerateExpr(node->children[LEFT], NT, compiler);
+
+        BYTE1(0x58);    // pop rax
+    }
+
+    DecreaseRBX(compiler->free_memory_index, compiler);
+
+    BYTE1(0xc3);        // ret
 }

@@ -36,7 +36,7 @@ void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compile
     GenerateExpr(node->children[LEFT], NT, compiler);
 
     BYTE2(0x41, 0x5c);                              // pop r12
-    BYTE4(0x4c, 0x89, 0x63, *num_of_params * 8);    // mov [rbx + 8 * *num_of_params], r12
+    BYTE4(0x4c, 0x89, 0x63, NT->size * 8);          // mov [rbx + 8 * num_of_vars], r12         // ребят у нас пизда с индексами в памяти
 
 }
 
