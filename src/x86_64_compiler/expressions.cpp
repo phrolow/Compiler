@@ -237,10 +237,10 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     switch (KEYW(node))
     {
         case KEYW_LESS:
-            BYTE2(0x0f, 0x8d);  // jge
+            BYTE2(0x0f, 0x8c);  // jl
             break;
         case KEYW_LESSOREQ:
-            BYTE2(0x0f, 0x8f);  // jg
+            BYTE2(0x0f, 0x8e);  // jle
             break;
         case KEYW_NOTEQUAL:
             BYTE2(0x0f, 0x84);  // je
@@ -249,10 +249,10 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
             BYTE2(0x0f, 0x85);  // jne
             break;
         case KEYW_GREATOREQ:
-            BYTE2(0x0f, 0x8c);  // jl
+            BYTE2(0x0f, 0x8d);  // jge
             break;
         case KEYW_GREAT:
-            BYTE2(0x0f, 0x8e);  // jle
+            BYTE2(0x0f, 0x8f);  // jg
             break;
         default:
             PRINT_("Undefined operator");
@@ -414,8 +414,6 @@ void GenerateReturn(struct Node *node, struct List *NT, struct Compiler *compile
 
         BYTE1(0x58);    // pop rax
     }
-
-    DecreaseRBX(compiler->free_memory_index, compiler);
 
     BYTE1(0xc3);        // ret
 }

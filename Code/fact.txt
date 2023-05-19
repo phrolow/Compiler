@@ -1,0 +1,19 @@
+main {
+ a = 0;
+
+ scan a;
+
+ x = fact(a);
+
+ print x;
+
+ return;
+}
+
+func fact(n) {
+ if(n == 1) {
+  return 1;
+ }
+
+ return n * fact(n - 1);
+}

@@ -15,8 +15,14 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     struct Node *name = node->children[LEFT];
 
+    size_t num_vars = gettail(NT) + 1;
+
+    IncreaseRBX(num_vars, compiler);
+
     BYTE1(0xe8); putAddress(name->val->value.name, POISON, compiler); // call name->val->value.name
     BYTE1(0x50);                                                        // push rax
+
+    DecreaseRBX(num_vars, compiler);
 }
 
 void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compiler, size_t *num_of_params) {
@@ -35,9 +41,10 @@ void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compile
 
     GenerateExpr(node->children[LEFT], NT, compiler);
 
-    BYTE2(0x41, 0x5c);                              // pop r12
-    BYTE4(0x4c, 0x89, 0x63, NT->size * 8);          // mov [rbx + 8 * num_of_vars], r12         // ребят у нас пизда с индексами в памяти
+    // BYTE2(0x41, 0x5c);                              // pop r12
+    // BYTE4(0x4c, 0x89, 0x63, NT->size * 8);          // mov [rbx + 8 * num_of_vars], r12         // ребят у нас пизда с индексами в памяти
 
+    BYTE1(0x58);    // pop rax
 }
 
 void GenerateFuncDef(struct Node *node, struct List *NT, struct Compiler *compiler)
@@ -65,8 +72,6 @@ void GenerateFuncDef(struct Node *node, struct List *NT, struct Compiler *compil
         GenerateDefParams(params, NT, compiler);
     }
 
-    IncreaseRBX(compiler->free_memory_index, compiler);
-
     struct Node *stmts  = node->children[RIGHT];
 
     GenerateStmts(stmts, NT, compiler);
@@ -87,6 +92,10 @@ void GenerateDefParams(struct Node *node, struct List *NT, struct Compiler *comp
             PushInNametable(node->children[LEFT], NT);
         }
     }
+
+    size_t index = SearchInNametable(node->children[LEFT], NT);
+
+    BYTE4(0x48, 0x89, 0x43, 8 * (index - 1));   // mov [rbx + 8(index - 1)], rax    ; rax is arg
 }
 
 void GenerateMain(struct Node *node, struct List *NT, struct Compiler *compiler) {

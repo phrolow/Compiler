@@ -115,3 +115,16 @@ void resize(list *list, size_t newsize) {
     list->happy = 1;
     list->data = newdata;
 }
+
+size_t listSize(struct List *list) {
+    size_t next = 0;
+    size_t res = 0;
+
+    while(list->next[next]) {
+        res++;
+
+        next = list->next[next];
+    }
+
+    return res;
+}
