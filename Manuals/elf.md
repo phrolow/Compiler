@@ -86,7 +86,7 @@ elf_header->e_shstrndx  = 0;          // Contains index of the section header ta
 
 
 
--  **e_ident**
+-  **e_ident**. Массив символов, ни убавить, ни прибавить.
 
     ```c
     unsigned char	e_ident[EI_NIDENT];
