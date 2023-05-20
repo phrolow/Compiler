@@ -49,6 +49,7 @@ typedef struct elf64_hdr {
 
 <details>
 <summary>Как я сделал</summary>
+
 ```c
 Elf64_Ehdr *elf_header = (Elf64_Ehdr *) compiler->ip;
 
@@ -75,17 +76,20 @@ elf_header->e_phnum     = 3;          // Contains the number of entries in the p
 
 elf_header->e_shentsize = 64;         // Contains the size of a section header table entry
 elf_header->e_shnum     = 0;          // Contains the number of entries in the section header table
-elf_header->e_shstrndx  = 0;          // Contains index of the section header table entry that contains the section names```
+elf_header->e_shstrndx  = 0;          // Contains index of the section header table entry that contains the section names
+```
+
 </details>
 
 Дедушке Линусу было лень пояснять всё, так что сделаем работу за него.
 
-- **e_ident**
-```c
-    unsigned char	e_ident[EI_NIDENT];```
+### **e_ident**
 
-    <details>
-    <summary>Константы</summary>
+```c
+unsigned char	e_ident[EI_NIDENT];```
+
+<details>
+<summary>Константы</summary>
     ```c
     #define	EI_MAG0		0		/* e_ident[] indexes */
     #define	EI_MAG1		1
@@ -120,7 +124,7 @@ elf_header->e_shstrndx  = 0;          // Contains index of the section header ta
     #define ELFOSABI_NONE	0
     #define ELFOSABI_LINUX	3
 ```
-    </details>
+</details>
 
     На первые 8 индексов массива определены константы, начинающиеся с **EI_**. Используются только первые 7 индексов массива.
 
