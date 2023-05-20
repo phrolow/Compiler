@@ -75,8 +75,7 @@ elf_header->e_phnum     = 3;          // Contains the number of entries in the p
 
 elf_header->e_shentsize = 64;         // Contains the size of a section header table entry
 elf_header->e_shnum     = 0;          // Contains the number of entries in the section header table
-elf_header->e_shstrndx  = 0;          // Contains index of the section header table entry that contains the section names
-```
+elf_header->e_shstrndx  = 0;          // Contains index of the section header table entry that contains the section names```
 </details>
 
 Дедушке Линусу было лень пояснять всё, так что сделаем работу за него.
