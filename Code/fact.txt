@@ -3,7 +3,13 @@ main {
 
  scan a;
 
- x = fact(a);
+ count = 100000;
+
+ while(count > 0) {
+  x = fact(a);
+  
+  count = count - 1;
+ }
 
  print x;
 

@@ -1,5 +1,8 @@
 #include "testing.h"
 
+#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Wnonnull"
+
 int runTest(const char *test) {
     char cmd[STR_LENGTH + 1] = {};
 
@@ -58,5 +61,5 @@ void measure() {
 
     clock_t time_finish = clock();
 
-    printf("WWorking time: lg ms\n", difftime(time_finish, time_start) / CLOCKS_PER_SEC * 1000);
+    printf("Working time: %lg ms\n", difftime(time_finish, time_start) / CLOCKS_PER_SEC * 1000);
 }

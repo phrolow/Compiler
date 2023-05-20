@@ -16,11 +16,11 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    language_compile(argv[1], BINPATH);
+    language_compile(argv[1], argv[2]);
     printf("Compiled\n");
 
     #else
-    printf("\nTESTING FACT\n");
+    printf("TESTING FACT\n");
 
     language_compile("Code/fact.txt", BINPATH);
     
@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 
     measure();
 
-    printf("TESTING FIB\n");
+    printf("\nTESTING FIB\n");
 
     language_compile("Code/fib.txt", BINPATH);
     
