@@ -44,7 +44,8 @@ typedef struct elf64_hdr {
   Elf64_Half e_shentsize;
   Elf64_Half e_shnum;
   Elf64_Half e_shstrndx;
-} Elf64_Ehdr;```
+} Elf64_Ehdr;
+```
 
 <details>
 <summary>Как я сделал</summary>
@@ -74,12 +75,14 @@ elf_header->e_phnum     = 3;          // Contains the number of entries in the p
 
 elf_header->e_shentsize = 64;         // Contains the size of a section header table entry
 elf_header->e_shnum     = 0;          // Contains the number of entries in the section header table
-elf_header->e_shstrndx  = 0;          // Contains index of the section header table entry that contains the section names```
+elf_header->e_shstrndx  = 0;          // Contains index of the section header table entry that contains the section names
+```
 </details>
 
 Дедушке Линусу было лень пояснять всё, так что сделаем работу за него.
 
-- ```c
+- **e_ident**
+```c
     unsigned char	e_ident[EI_NIDENT];```
 
     <details>
@@ -116,7 +119,8 @@ elf_header->e_shstrndx  = 0;          // Contains index of the section header ta
     #define EV_NUM		2
 
     #define ELFOSABI_NONE	0
-    #define ELFOSABI_LINUX	3```
+    #define ELFOSABI_LINUX	3
+```
     </details>
 
     На первые 8 индексов массива определены константы, начинающиеся с **EI_**. Используются только первые 7 индексов массива.
@@ -133,8 +137,7 @@ elf_header->e_shstrndx  = 0;          // Contains index of the section header ta
 
     Индекс **EI_PAD** - индекс начала неиспользуемого места в массиве.
 
-- ```c
-    Elf64_Half e_type;```
+-   **e_type**
 
     <details>
     <summary>Константы</summary>
@@ -208,3 +211,4 @@ elf_header->e_shstrndx  = 0;          // Contains index of the section header ta
     Elf64_Half e_shstrndx;```
 
     Номер заголовка для секции, хранящей таблицу строк. Её у нас нет, пишем константу SHN_UNDEF.
+
