@@ -94,7 +94,7 @@ void generateElfHead(Compiler *compiler) {
     elf_header->e_ident[EI_MAG3] = ELFMAG3; // Building the elf signature: 0x7f 'E' 'L' 'F'
     
     elf_header->e_ident[EI_CLASS]   = ELFCLASS64;    // 64-bit format
-    elf_header->e_ident[EI_DATA]    = ELFDATA2LSB;   // Big Endian
+    elf_header->e_ident[EI_DATA]    = ELFDATA2LSB;   // Little Endian
     elf_header->e_ident[EI_VERSION] = EV_CURRENT;    // File version index (must be EV_CURRENT)
     elf_header->e_ident[EI_OSABI]   = ELFOSABI_NONE;
 
