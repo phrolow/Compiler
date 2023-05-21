@@ -1,9 +1,7 @@
 Хей, с вами эксперт Х-курсов по ELF-файлам Василий Фролов, и сегодня я научу вас писать минимальный ELF-файл
+# Суть гайда
 
-# Что такое ELF-файл?
-
-ELF (Executable and Linkable Format) - формат в Linux'e для исполняемых файлов, объектников, динамических библиотек и др. *#достаточно*, во всяком случае для нас сегодня.
-
+ELF (Executable and Linkable Format) - формат в Linux'e для исполняемых файлов, объектников, динамических библиотек и др. Я расскажу только о том, как написать минимальный рабочий исполняемый файл.
 # Начало файла
 
 В начале файла у нас лежат:
@@ -54,6 +52,8 @@ typedef struct elf64_hdr {
 <summary>Как я сделал</summary>
 
 ```c
+Elf64_Ehdr *elf_header = (Elf64_Ehdr *) compiler->ip;
+
 elf_header->e_ident[EI_MAG0] = ELFMAG0;
 elf_header->e_ident[EI_MAG1] = ELFMAG1;
 elf_header->e_ident[EI_MAG2] = ELFMAG2;  
@@ -211,6 +211,8 @@ typedef struct elf32_phdr {
 <summary>Как я сделал</summary>
 
 ```c
+Elf64_Phdr *code_header = (Elf64_Phdr *) compiler->ip;
+
 code_header->p_type   = PT_LOAD;                    // loadable segment
 code_header->p_flags  = PF_R | PF_W | PF_X;         // readable, writeable and executable segment
 
