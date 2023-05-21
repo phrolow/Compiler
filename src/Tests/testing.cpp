@@ -51,15 +51,19 @@ void runTests(const char *tests) {
 }
 
 void measure() {
+    int status = 0;
+
     char cmd[STR_LENGTH + 1] = {};
 
     sprintf(cmd, "./%s < %s", BINPATH, TMP_PATH);
 
-    clock_t time_start = clock();
+    auto begin = std::chrono::high_resolution_clock::now();
 
-    execl(cmd, NULL);
+    FILE *elf = popen(cmd, "r");
+    pclose(elf);
 
-    clock_t time_finish = clock();
+    auto end = std::chrono::high_resolution_clock::now();
+    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin);
 
-    printf("Working time: %lg ms\n", difftime(time_finish, time_start) / CLOCKS_PER_SEC * 1000);
+    printf("Working time: %ld ms\n", elapsed);
 }

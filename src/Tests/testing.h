@@ -4,7 +4,9 @@
 #include "../config.h"
 
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <chrono>
 #include <unistd.h>
 
 const size_t STR_LENGTH = 0x20;

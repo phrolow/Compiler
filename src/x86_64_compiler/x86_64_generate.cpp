@@ -101,7 +101,7 @@ void generateElfHead(Compiler *compiler) {
     elf_header->e_type      = ET_EXEC;    // Executable file 
     elf_header->e_machine   = EM_X86_64;  // x86-64 machine 
     elf_header->e_version   = EV_CURRENT; // Object file version
-    elf_header->e_entry     = 0x401000;   // Entry point
+    elf_header->e_entry     = X64_VA_START + ENTRY_POINT;   // Entry point
     elf_header->e_phoff     = 64;         // Points to the start of the program header table
     elf_header->e_shoff     = 0x0;        // Points to the start of the section header table
     elf_header->e_flags     = 0x0;        // Interpretation of this field depends on the target architecture
@@ -120,9 +120,9 @@ void generateElfHead(Compiler *compiler) {
     code_header->p_type   = PT_LOAD;                    // loadable segment
     code_header->p_flags  = PF_R | PF_W | PF_X;         // readable, writeable and executable segment
 
-    code_header->p_offset = SEGMENT_START;   // segment file offset
-    code_header->p_vaddr  = 0x401000;        // segment VA
-    code_header->p_paddr  = 0x401000;        // segment physical address
+    code_header->p_offset = 0x0;             // segment file offset
+    code_header->p_vaddr  = X64_VA_START;    // segment VA
+    code_header->p_paddr  = 0x0;             // segment physical address
     code_header->p_filesz = BUFSIZE;         // segment size in file
     code_header->p_memsz  = BUFSIZE;         // segment size in memory
 
@@ -167,7 +167,7 @@ void generateLibs      (struct Compiler *compiler) {
 void generateBinary(tree *tree, Compiler *compiler) {
     generateElfHead(compiler);
 
-    compiler->ip = compiler->out + SEGMENT_START;
+    compiler->ip = compiler->out + ENTRY_POINT;
 
     compiler->GlobalNT = newList();
 

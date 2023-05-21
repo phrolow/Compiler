@@ -50,7 +50,8 @@ const size_t LIB_ALIGNMENT = 0x400;
 const size_t LIBS_SIZE = 0x800;                   
 const size_t MEMORY_SIZE = 0x800;
 const size_t OUT_SIZE = 0x8D;
-const size_t SEGMENT_START = 0x1000;
+const size_t ENTRY_POINT = 0x1000;
+const size_t X64_VA_START = 0x400000;
 
 const u_int64_t POISON  = 0xbaadf00dbaadf00d;
 
