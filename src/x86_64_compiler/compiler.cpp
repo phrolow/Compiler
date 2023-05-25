@@ -18,11 +18,6 @@ struct Compiler *newCompiler(char *out) {
     compiler->free_memory_index = 0;
     compiler->ip = out;
 
-    // compiler->size_lib = 0;
-    // compiler->size_code = 0;
-    // compiler->size_data = 0;
-    // compiler->size_headers = 0;
-
     compiler->offset_data = 0;
 
     compiler->count_var = 0;
@@ -51,11 +46,6 @@ void reinitCompiler(Compiler *compiler, char *out) {
 
     compiler->free_memory_index = 0;
 
-    // compiler->size_lib = 0;
-    // compiler->size_code = 0;
-    // compiler->size_data = 0;
-    // compiler->size_headers = 0;
-
     compiler->offset_data = 0;
 
     compiler->count_var = 0;
@@ -77,16 +67,10 @@ void CompilerDtor(struct Compiler *compiler) {
     ListDtor(compiler->GlobalNT);
     compiler->GlobalNT = NULL;
 
-    //ListDtor(compiler->local_vars);
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = POISON;
     compiler->ip = NULL;
-
-    // compiler->size_lib = POISON;
-    // compiler->size_code = POISON;
-    // compiler->size_data = POISON;
-    // compiler->size_headers = POISON;
 
     compiler->offset_data = POISON;
 

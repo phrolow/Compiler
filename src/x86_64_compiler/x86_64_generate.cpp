@@ -78,14 +78,6 @@ void DecreaseRBX(const size_t number, struct Compiler *compiler) {
 void generateElfHead(Compiler *compiler) {
     compiler->header = compiler->ip;
 
-    // FILE *header = fopen(HEADER, "r");
-
-    // fread(compiler->header, HEADER_SIZE, sizeof(char), header);
-
-    // fclose(header);
-
-    // compiler->ip += HEADER_SIZE;
-
     Elf64_Ehdr *elf_header = (Elf64_Ehdr *) compiler->ip;
 
     elf_header->e_ident[EI_MAG0] = ELFMAG0;
@@ -189,6 +181,9 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
         return;
     }
 
+    compiler->cmds = (cmds_t*) calloc(1, sizeof(cmds_t));
+    cmdArrayCtor(compiler->cmds, NUM_CMDS);
+
     generateMemory(compiler);
 
     generateLibs(compiler);
@@ -236,6 +231,9 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
 
     GenerateMain(compiler->node_main, NT, compiler);
     
+    printArray(compiler->cmds, compiler->ip);
+
+    cmdArrayDtor(compiler->cmds);
     ListDtor(NT);
 }
 

@@ -11,6 +11,7 @@
 #include "../Debug/debug.h"
 #include "../List/list.h"
 
+#include "ir.h"
 #include "x86_64.h"
 
 #define NODE_KEYW(NODE, KEYW) (NODE->val->type == KEYWORD_TYPE && NODE->val->value.keyword == KEYW)
@@ -38,19 +39,22 @@ struct Compiler {
     size_t count_label;
 
     struct List *labels;
+
+    cmds_t *cmds;
     
     char *ip;
 };
 
-const size_t BUFSIZE = 0x3000;
-const size_t IN_SIZE = 0x61;
 const size_t BUF_ALIGNMENT = 0x1000;
+const size_t BUFSIZE = 0x3000;
+const size_t ENTRY_POINT = 0x1000;
 const size_t HEADER_SIZE = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr);
+const size_t IN_SIZE = 0x61;
 const size_t LIB_ALIGNMENT = 0x400; 
 const size_t LIBS_SIZE = 0x800;                   
 const size_t MEMORY_SIZE = 0x800;
+const size_t NUM_CMDS = 0x800;                                      // виноват, лень реаллочить
 const size_t OUT_SIZE = 0x8D;
-const size_t ENTRY_POINT = 0x1000;
 const size_t X64_VA_START = 0x400000;
 
 const u_int64_t POISON  = 0xbaadf00dbaadf00d;

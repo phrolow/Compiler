@@ -20,7 +20,7 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
     IncreaseRBX(num_vars, compiler);
 
     BYTE1(0xe8); putAddress(name->val->value.name, POISON, compiler); // call name->val->value.name
-    BYTE1(0x50);                                                        // push rax
+    BYTE1(0x50);                                                      // push rax
 
     DecreaseRBX(num_vars, compiler);
 }
@@ -42,7 +42,7 @@ void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compile
     GenerateExpr(node->children[LEFT], NT, compiler);
 
     // BYTE2(0x41, 0x5c);                              // pop r12
-    // BYTE4(0x4c, 0x89, 0x63, NT->size * 8);          // mov [rbx + 8 * num_of_vars], r12         // ребят у нас пизда с индексами в памяти
+    // BYTE4(0x4c, 0x89, 0x63, NT->size * 8);          // mov [rbx + 8 * num_of_vars], r12      
 
     BYTE1(0x58);    // pop rax
 }

@@ -1,0 +1,29 @@
+// name, have arg, length (in bytes, of all cmd), is addr arg, byte sequence
+
+DEF_INSTR(CALL,         1, 5, 1, 0xe8)
+DEF_INSTR(PUSH_R12,     0, 2, 0, 0x41 COMMA 0x54)
+DEF_INSTR(PUSH_R13,     0, 2, 0, 0x41 COMMA 0x55)
+DEF_INSTR(PUSH_RAX,     0, 1, 0, 0x50)
+DEF_INSTR(POP_R12,      0, 2, 0, 0x41 COMMA 0x5c)
+DEF_INSTR(POP_R13,      0, 2, 0, 0x41 COMMA 0x5d)
+DEF_INSTR(POP_RAX,      0, 1, 0, 0x58)
+DEF_INSTR(CMP_R12_R13,  0, 3, 0, 0x4d COMMA 0x39 COMMA 0xec)
+DEF_INSTR(JMP,          1, 5, 1, 0xe9)
+DEF_INSTR(JGE,          1, 6, 1, 0x0f COMMA 0x8d)
+DEF_INSTR(JG,           1, 6, 1, 0x0f COMMA 0x8f)
+DEF_INSTR(JLE,          1, 6, 1, 0x0f COMMA 0x8e)
+DEF_INSTR(JL,           1, 6, 1, 0x0f COMMA 0x8c)
+DEF_INSTR(JNE,          1, 6, 1, 0x0f COMMA 0x85)
+DEF_INSTR(JE,           1, 6, 1, 0x0f COMMA 0x84)
+DEF_INSTR(ADD,          0, 3, 0, 0x4d COMMA 0x01 COMMA 0xec)                                        // add r12, r13
+DEF_INSTR(ADD_RSP_8,    0, 4, 0, 0x48 COMMA 0x83 COMMA 0xc4 COMMA 0x08)
+DEF_INSTR(SUB,          0, 3, 0, 0x4d COMMA 0x29 COMMA 0xec)                                        // sub r12, r13
+DEF_INSTR(IMUL,         0, 4, 0, 0x4d COMMA 0x0f COMMA 0xaf COMMA 0xe5)                             // imul r12, r13
+DEF_INSTR(DIV,          0, 4, 0, 0x49 COMMA 0xf7 COMMA 0xf5)
+DEF_INSTR(MOV_RAX_R12,  0, 3, 0, 0x4c COMMA 0x89 COMMA 0xe0)
+DEF_INSTR(MOV_RAX_VAL,  1, 7, 0, 0x48 COMMA 0xc7 COMMA 0xc0)
+DEF_INSTR(MOV_R12_RAX,  0, 3, 0, 0x49 COMMA 0x89 COMMA 0xc4)
+DEF_INSTR(MOV_R12_MEM,  1, 7, 0, 0x4c COMMA 0x8b COMMA 0x63)                                        // mov r12, [rbx + arg]
+DEF_INSTR(MOV_MEM_RAX,  1, 7, 0, 0x48 COMMA 0x89 COMMA 0x43)                                        // mov [rbx + arg], rax
+DEF_INSTR(MOV_MEM_R12,  1, 7, 0, 0x4c COMMA 0x89 COMMA 0x63)                                        // mov [rbx + arg], r12
+DEF_INSTR(RET,          0, 1, 0, 0xc3)
