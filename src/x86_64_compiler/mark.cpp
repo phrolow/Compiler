@@ -3,13 +3,13 @@
 void GenerateMark(struct Node *mark, struct Compiler *compiler) {
     if (mark->val->type == VAR_TYPE || NODE_KEYW(mark, KEYW_MAIN)) {
         if (mark->val->type == VAR_TYPE) {
-            generateLabel(mark->val->value.name, POISON, compiler);
+            generateLabelFromCmds(mark->val->value.name, POISON, compiler);
 
             return;
         }
         else
         if (KEYW(mark) == KEYW_MAIN) {
-            generateLabel("main", POISON, compiler);
+            generateLabelFromCmds("main", POISON, compiler);
 
             compiler->main = compiler->ip;
 
@@ -20,7 +20,7 @@ void GenerateMark(struct Node *mark, struct Compiler *compiler) {
     PRINT_("Non-name type of node");
 }
 
-void generateLabel(const char *format, size_t index, struct Compiler *compiler) {
+void generateLabel(const char *format, size_t index, struct Compiler *compiler) {       // for labels that isn't in code region
     if(indexLabel(format, index, compiler) != POISON)
         return;
 
@@ -31,6 +31,22 @@ void generateLabel(const char *format, size_t index, struct Compiler *compiler) 
     sprintf(name, format, index);
 
     label.index = compiler->ip - compiler->out;
+    sprintf(label.name, format, index);
+
+    ListTailInsert(compiler->labels, label);
+}
+
+void generateLabelFromCmds(const char *format, size_t index, struct Compiler *compiler) {
+    if(indexLabel(format, index, compiler) != POISON)
+        return;
+
+    name_t label = {};
+
+    char name[WORD_MAX_LEN + 1] = {};
+
+    sprintf(name, format, index);
+
+    label.index = compiler->cmds->ip - compiler->out;
     sprintf(label.name, format, index);
 
     ListTailInsert(compiler->labels, label);
@@ -68,3 +84,10 @@ void putAddress(const char *format, size_t index, struct Compiler *compiler) {
     *((u_int32_t *) (compiler->ip)) = relative_address - sizeof(relative_address);
     compiler->ip += sizeof(u_int32_t);
 }
+
+uint32_t relAddress(const char *format, size_t index, struct Compiler *compiler) {
+    u_int32_t label_offset = indexLabel(format, index, compiler);
+    u_int32_t relative_address = label_offset - (compiler->cmds->ip - compiler->out);
+
+    return relative_address;
+}                                    

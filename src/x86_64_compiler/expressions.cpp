@@ -42,24 +42,34 @@ void GenerateMathOper(struct Node *node, struct Compiler *compiler)
         PRINT_D(node_err);
     }
 
-    BYTE2(0x41, 0x5c);  // pop r12
-    BYTE2(0x41, 0x5d);  // pop r13
+    // BYTE2(0x41, 0x5c);  // pop r12
+    // BYTE2(0x41, 0x5d);  // pop r13
+
+    addCmd(compiler->cmds, POP_R12, POISON);
+    addCmd(compiler->cmds, POP_R13, POISON);
 
     switch (KEYW(node))
     {
         case KEYW_ADD:
-            BYTE3(0x4d, 0x01, 0xec);        // add r12, r13
+            // BYTE3(0x4d, 0x01, 0xec);        // add r12, r13
+            addCmd(compiler->cmds, ADD, POISON);
             break;
         case KEYW_SUB:
-            BYTE3(0x4d, 0x29, 0xec);        // sub r12, r13
+            // BYTE3(0x4d, 0x29, 0xec);        // sub r12, r13
+            addCmd(compiler->cmds, SUB, POISON);
             break;
         case KEYW_MUL:
-            BYTE4(0x4d, 0x0f, 0xaf, 0xe5);  // imul r12, r13
+            // BYTE4(0x4d, 0x0f, 0xaf, 0xe5);  // imul r12, r13
+            addCmd(compiler->cmds, IMUL, POISON);
             break;
-        case KEYW_DIV:
-            BYTE3(0x4c, 0x89, 0xe0);        // mov rax, r12
-            BYTE3(0x49, 0xf7, 0xfd);        // div r13
-            BYTE3(0x49, 0x89, 0xc4);        // mov r12, rax
+        // case KEYW_DIV:
+        //     BYTE3(0x4c, 0x89, 0xe0);        // mov rax, r12
+        //     BYTE3(0x49, 0xf7, 0xfd);        // div r13
+        //     BYTE3(0x49, 0x89, 0xc4);        // mov r12, rax
+            addCmd(compiler->cmds, MOV_RAX_R12, POISON);
+            addCmd(compiler->cmds, XOR_RDX_RDX, POISON);
+            addCmd(compiler->cmds, DIV, POISON);
+            addCmd(compiler->cmds, MOV_R12_RAX, POISON);
             break;
 
         default:
@@ -68,7 +78,8 @@ void GenerateMathOper(struct Node *node, struct Compiler *compiler)
             break;
     }
     
-    BYTE2(0x41, 0x54);                      // push r12
+    // BYTE2(0x41, 0x54);                      // push r12
+    addCmd(compiler->cmds, PUSH_R12, POISON);
 }
 
 void GenerateNum(struct Node *node, struct Compiler *compiler)
@@ -81,10 +92,11 @@ void GenerateNum(struct Node *node, struct Compiler *compiler)
         PRINT_D(node_err);
     }
 
-    // TODO: переделать под инты
+    // BYTE2(0x48, 0xb8); INT(node->val->value.num);   // mov rax, num
+    // BYTE1(0x50);                                    // push rax
 
-    BYTE2(0x48, 0xb8); INT(node->val->value.num);   // mov rax, num
-    BYTE1(0x50);                                    // push rax
+    addCmd(compiler->cmds, MOV_RAX_IMM, node->val->value.num);
+    addCmd(compiler->cmds, PUSH_RAX, POISON);
 }
 
 
@@ -92,8 +104,11 @@ void GenerateGlobVar(struct Node *node, struct Compiler *compiler) {
     if (SearchInNametable(node, compiler->GlobalNT)) {
         size_t index = IndexNametable(node, compiler->GlobalNT);
 
-        BYTE4(0x4c, 0x8b, 0x63, (index - 1) * 8);   // mov r12, [rbx + 8 * (index - 1)]
-        BYTE2(0x41, 0x54);                          // push r12
+        // BYTE4(0x4c, 0x8b, 0x63, (index - 1) * 8);   // mov r12, [rbx + 8 * (index - 1)]
+        // BYTE2(0x41, 0x54);                          // push r12
+
+        addCmd(compiler->cmds, MOV_R12_MEM, (index - 1) * 8);
+        addCmd(compiler->cmds, PUSH_R12, POISON);
     }
 
     PRINT_("Global variable not found");
@@ -152,8 +167,11 @@ void GenerateVar(struct Node *node, struct List *NT, struct Compiler *compiler) 
     {
         size_t index = IndexNametable(node, NT);
 
-        BYTE4(0x4c, 0x8b, 0x63, (index - 1) * 8);   // mov r12, [rbx + 8 * (index - 1)]
-        BYTE2(0x41, 0x54);                          // push r12
+        // BYTE4(0x4c, 0x8b, 0x63, (index - 1) * 8);   // mov r12, [rbx + 8 * (index - 1)]
+        // BYTE2(0x41, 0x54);                          // push r12
+
+        addCmd(compiler->cmds, MOV_R12_MEM, (index - 1) * 8);
+        addCmd(compiler->cmds, PUSH_R12, POISON);
 
         return;
     }
@@ -230,40 +248,50 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     if (!IsLogOper(node)) 
         PRINT_("There is no logical operator");
 
-    BYTE2(0x41, 0x5c);          // pop r12
-    BYTE2(0x41, 0x5d);          // pop r13
-    BYTE3(0x4d, 0x39, 0xec);    // cmp r12, r13
+    // BYTE2(0x41, 0x5c);          // pop r12
+    // BYTE2(0x41, 0x5d);          // pop r13
+    // BYTE3(0x4d, 0x39, 0xec);    // cmp r12, r13
+
+    addCmd(compiler->cmds, POP_R12,     POISON);
+    addCmd(compiler->cmds, POP_R13,     POISON);
+    addCmd(compiler->cmds, CMP_R12_R13, POISON);
+
+    char name[WORD_MAX_LEN + 1] = {};
+
+    sprintf(name, "%s_%d", mark, num);
 
     switch (KEYW(node))
     {
         case KEYW_LESS:
-            BYTE2(0x0f, 0x8c);  // jl
+            // BYTE2(0x0f, 0x8c);  // jl
+            addCmd(compiler->cmds, JL, relAddress(name, POISON, compiler));
             break;
         case KEYW_LESSOREQ:
-            BYTE2(0x0f, 0x8e);  // jle
+            // BYTE2(0x0f, 0x8e);  // jle
+            addCmd(compiler->cmds, JLE, relAddress(name, POISON, compiler));
             break;
         case KEYW_NOTEQUAL:
-            BYTE2(0x0f, 0x84);  // je
+            // BYTE2(0x0f, 0x84);  // je
+            addCmd(compiler->cmds, JE, relAddress(name, POISON, compiler));
             break;
         case KEYW_EQUAL:
-            BYTE2(0x0f, 0x85);  // jne
+            // BYTE2(0x0f, 0x85);  // jne
+            addCmd(compiler->cmds, JNE, relAddress(name, POISON, compiler));
             break;
         case KEYW_GREATOREQ:
-            BYTE2(0x0f, 0x8d);  // jge
+            // BYTE2(0x0f, 0x8d);  // jge
+            addCmd(compiler->cmds, JGE, relAddress(name, POISON, compiler));
             break;
         case KEYW_GREAT:
-            BYTE2(0x0f, 0x8f);  // jg
+            // BYTE2(0x0f, 0x8f);  // jg
+            addCmd(compiler->cmds, JG, relAddress(name, POISON, compiler));
             break;
         default:
             PRINT_("Undefined operator");
             break;
     }
 
-    char name[WORD_MAX_LEN + 1] = {};
-
-    sprintf(name, "%s_%d", mark, num);
-
-    putAddress(name, POISON, compiler);
+    // putAddress(name, POISON, compiler);
 }
 
 void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -289,8 +317,11 @@ void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler
 
     GenerateExpr(node->children[LEFT], NT, compiler);
 
-    BYTE1(0xe8); putAddress("decimal", POISON, compiler); // call decimal
-    BYTE4(0x48, 0x83, 0xc4, 0x08);                        // add rsp, 8
+    // BYTE1(0xe8); putAddress("decimal", POISON, compiler); // call decimal
+    // BYTE4(0x48, 0x83, 0xc4, 0x08);                        // add rsp, 8
+
+    addCmd(compiler->cmds, CALL, relAddress("decimal", POISON, compiler));
+    addCmd(compiler->cmds, ADD_RSP_8, POISON);
 }
 
 void GenerateScan(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -318,8 +349,11 @@ void GenerateScan(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     size_t index = IndexNametable(node->children[LEFT], NT);
 
-    BYTE1(0xe8); putAddress("in", POISON, compiler);            // call in
-    BYTE4(0x48, 0x89, 0x43, (index - 1));                       // mov [rbx + (index - 1)], rax
+    // BYTE1(0xe8); putAddress("in", POISON, compiler);            // call in
+    // BYTE4(0x48, 0x89, 0x43, (index - 1));                       // mov [rbx + (index - 1)], rax
+
+    addCmd(compiler->cmds, CALL, relAddress("in", POISON, compiler));
+    addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
 }
 
 void GenerateAssign(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -365,9 +399,11 @@ void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
         GenerateCond(condition, NT, compiler, "ELSE", counter);
         GenerateStmts(if_stmts, NT, compiler);
 
-        BYTE2(0x0f, 0xeb); putAddress("END_IF_%lu", counter, compiler);   // jmp END_IF_counter
+        // BYTE2(0x0f, 0xeb); putAddress("END_IF_%lu", counter, compiler);   // jmp END_IF_counter
 
-        generateLabel("ELSE_%lu", counter, compiler);
+        addCmd(compiler->cmds, JMP, relAddress("END_IF_%lu", counter, compiler));
+
+        generateLabelFromCmds("ELSE_%lu", counter, compiler);
 
         GenerateStmts(else_stmts, NT, compiler);
     }
@@ -377,7 +413,7 @@ void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
         GenerateStmts(if_stmts, NT, compiler);
     }
 
-    generateLabel("END_IF_%lu", counter, compiler);
+    generateLabelFromCmds("END_IF_%lu", counter, compiler);
 }
 
 void GenerateCond(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
@@ -393,14 +429,16 @@ void GenerateWhile(struct Node *node, struct List *NT, struct Compiler *compiler
 
     size_t counter = compiler->__WHILE_COUNTER__++;
 
-    generateLabel("WHILE_%lu", counter, compiler);
+    generateLabelFromCmds("WHILE_%lu", counter, compiler);
 
     GenerateCond(condition, NT, compiler, "END_WHILE", counter);
     GenerateStmts(while_stmts, NT, compiler);
 
-    BYTE1(0xe9); putAddress("WHILE_%lu", counter, compiler);  // jmp WHILE_counter
+    // BYTE1(0xe9); putAddress("WHILE_%lu", counter, compiler);  // jmp WHILE_counter
 
-    generateLabel("END_WHILE_%lu", counter, compiler);
+    addCmd(compiler->cmds, JMP, relAddress("WHILE_%lu", counter, compiler));
+
+    generateLabelFromCmds("END_WHILE_%lu", counter, compiler);
 }
 
 void GenerateReturn(struct Node *node, struct List *NT, struct Compiler *compiler)
@@ -412,8 +450,12 @@ void GenerateReturn(struct Node *node, struct List *NT, struct Compiler *compile
     if(node->children[LEFT]) {
         GenerateExpr(node->children[LEFT], NT, compiler);
 
-        BYTE1(0x58);    // pop rax
+        // BYTE1(0x58);    // pop rax
+
+        addCmd(compiler->cmds, POP_RAX, POISON);
     }
 
-    BYTE1(0xc3);        // ret
+    // BYTE1(0xc3);        // ret
+
+    addCmd(compiler->cmds, RET, POISON);
 }

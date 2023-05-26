@@ -68,11 +68,15 @@ int IsLogOper(struct Node *node) {
 }
 
 void IncreaseRBX(const size_t number, struct Compiler *compiler) {
-    BYTE4(0x48, 0x83, 0xc3, number * 8); // add rbx, number * 8
+    // BYTE4(0x48, 0x83, 0xc3, number * 8); // add rbx, number * 8
+
+    addCmd(compiler->cmds, ADD_RBX, number * 8);
 }
 
 void DecreaseRBX(const size_t number, struct Compiler *compiler) {
-    BYTE4(0x48, 0x83, 0xeb, number * 8); // sub rbx, number * 8
+    // BYTE4(0x48, 0x83, 0xeb, number * 8); // sub rbx, number * 8
+
+    addCmd(compiler->cmds, SUB_RBX, number * 8);
 }
 
 void generateElfHead(Compiler *compiler) {
@@ -128,7 +132,7 @@ void generateMemory(struct Compiler *compiler) {
 
     BYTE7(0x48, 0x8d, 0x1d, 0x00, 0x00, 0x00, 0x00);                                                // lea rbx, [rip]
     BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE + LIBS_SIZE - 12;                    // skip data and libs space (with jmp) 
-                                                                                                    // 9 is num of already printed instructions
+                                                                                                    // 12 is num of already printed bytes
     compiler->ip = compiler->memory + MEMORY_SIZE;                                  
 }
 
@@ -182,7 +186,7 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
     }
 
     compiler->cmds = (cmds_t*) calloc(1, sizeof(cmds_t));
-    cmdArrayCtor(compiler->cmds, NUM_CMDS);
+    cmdArrayCtor(compiler->cmds, NUM_CMDS, compiler->ip);
 
     generateMemory(compiler);
 
@@ -194,6 +198,8 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
     BYTE7(0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00);    // mov rax, 0x3c
     BYTE3(0x48, 0x31, 0xff);                            // xor rdi, rdi
     BYTE2(0x0f, 0x05);                                  // syscall
+
+    compiler->cmds->ip = compiler->ip;
 
     while (node->children[RIGHT])
         node = node->children[RIGHT];
@@ -249,9 +255,12 @@ void InitGlobVar(struct Node *node, struct Compiler *compiler) {
 
     GenerateGlobExpr(node->children[RIGHT], compiler);
 
-    BYTE2(0x41, 0x5c);                          // pop r12
-    BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
-                                                // risk if there're 17 or more global vars
+    // BYTE2(0x41, 0x5c);                          // pop r12
+    // BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
+    //                                             // risk if there're 17 or more global vars
+
+    addCmd(compiler->cmds, POP_R12, POISON);
+    addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
 }
 
 void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -266,9 +275,12 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
         assert(index >= 1);
 
-        BYTE2(0x41, 0x5c);                          // pop r12
-        BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
-                                                    // risk if there're 17 or more global vars
+        // BYTE2(0x41, 0x5c);                          // pop r12
+        // BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
+        //                                             // risk if there're 17 or more global vars
+
+        addCmd(compiler->cmds, POP_R12, POISON);
+        addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
 
         return;
     }
@@ -281,7 +293,10 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
     GenerateExpr(node->children[RIGHT], NT, compiler);
 
-    BYTE2(0x41, 0x5c);                          // pop r12
-    BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
-                                                // risk if there're 17 or more global vars
+    // BYTE2(0x41, 0x5c);                          // pop r12
+    // BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
+    //                                             // risk if there're 17 or more global vars
+
+    addCmd(compiler->cmds, POP_R12, POISON);
+    addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
 }
