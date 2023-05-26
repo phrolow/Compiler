@@ -57,7 +57,7 @@ const size_t NUM_CMDS = 0x800;                                      // вино�
 const size_t OUT_SIZE = 0x8D;
 const size_t X64_VA_START = 0x400000;
 
-const u_int64_t POISON  = 0xbaadf00dbaadf00d;
+const size_t POISON  = 0xbaadf00d;
 
 int language_compile(const char *in, const char *out);
 

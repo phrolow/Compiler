@@ -1,32 +1,32 @@
 // name, have arg, length (in bytes, of all cmd), is addr arg, byte sequence
 
-DEF_INSTR(0x401, CALL,         1, 5, 1, 0xe8)
-DEF_INSTR(0x402, PUSH_R12,     0, 2, 0, 0x41 COMMA 0x54)
-DEF_INSTR(0x403, PUSH_R13,     0, 2, 0, 0x41 COMMA 0x55)
-DEF_INSTR(0x404, PUSH_RAX,     0, 1, 0, 0x50)
-DEF_INSTR(0x405, POP_R12,      0, 2, 0, 0x41 COMMA 0x5c)
-DEF_INSTR(0x406, POP_R13,      0, 2, 0, 0x41 COMMA 0x5d)
-DEF_INSTR(0x407, POP_RAX,      0, 1, 0, 0x58)
-DEF_INSTR(0x408, CMP_R12_R13,  0, 3, 0, 0x4d COMMA 0x39 COMMA 0xec)
-DEF_INSTR(0x409, JMP,          1, 5, 1, 0xe9)
-DEF_INSTR(0x40a, JGE,          1, 6, 1, 0x0f COMMA 0x8d)
-DEF_INSTR(0x40b, JG,           1, 6, 1, 0x0f COMMA 0x8f)
-DEF_INSTR(0x40c, JLE,          1, 6, 1, 0x0f COMMA 0x8e)
-DEF_INSTR(0x40d, JL,           1, 6, 1, 0x0f COMMA 0x8c)
-DEF_INSTR(0x40e, JNE,          1, 6, 1, 0x0f COMMA 0x85)
-DEF_INSTR(0x40f, JE,           1, 6, 1, 0x0f COMMA 0x84)
-DEF_INSTR(0x410, ADD,          0, 3, 0, 0x4d COMMA 0x01 COMMA 0xec)                                        // add r12, r13
-DEF_INSTR(0x411, ADD_RSP_8,    0, 4, 0, 0x48 COMMA 0x83 COMMA 0xc4 COMMA 0x08)
-DEF_INSTR(0x412, SUB,          0, 3, 0, 0x4d COMMA 0x29 COMMA 0xec)                                        // sub r12, r13
-DEF_INSTR(0x413, IMUL,         0, 4, 0, 0x4d COMMA 0x0f COMMA 0xaf COMMA 0xe5)                             // imul r12, r13
-DEF_INSTR(0x414, DIV,          0, 4, 0, 0x49 COMMA 0xf7 COMMA 0xf5)
-DEF_INSTR(0x415, MOV_RAX_R12,  0, 3, 0, 0x4c COMMA 0x89 COMMA 0xe0)
-DEF_INSTR(0x416, MOV_RAX_IMM,  1, 7, 0, 0x48 COMMA 0xc7 COMMA 0xc0)
-DEF_INSTR(0x417, MOV_R12_RAX,  0, 3, 0, 0x49 COMMA 0x89 COMMA 0xc4)
-DEF_INSTR(0x418, MOV_R12_MEM,  1, 7, 0, 0x4c COMMA 0x8b COMMA 0x63)                                        // mov r12, [rbx + arg]
-DEF_INSTR(0x419, MOV_MEM_RAX,  1, 7, 0, 0x48 COMMA 0x89 COMMA 0x43)                                        // mov [rbx + arg], rax
-DEF_INSTR(0x41a, MOV_MEM_R12,  1, 7, 0, 0x4c COMMA 0x89 COMMA 0x63)                                        // mov [rbx + arg], r12
-DEF_INSTR(0x41b, RET,          0, 1, 0, 0xc3)
-DEF_INSTR(0x41c, ADD_RBX,      1, 7, 0, 0x48 COMMA 0x81 COMMA 0xc3)
-DEF_INSTR(0x41d, SUB_RBX,      1, 7, 0, 0x48 COMMA 0x81 COMMA 0xeb)
-DEF_INSTR(0x41e, XOR_RDX_RDX,  0, 3, 0, 0x48 COMMA 0x31 COMMA 0xd2)
+DEF_INSTR(0x401, CALL,         1, 5, 1, "\xe8")
+DEF_INSTR(0x402, PUSH_R12,     0, 2, 0, "\x41\x54")
+DEF_INSTR(0x403, PUSH_R13,     0, 2, 0, "\x41\x55")
+DEF_INSTR(0x404, PUSH_RAX,     0, 1, 0, "\x50")
+DEF_INSTR(0x405, POP_R12,      0, 2, 0, "\x41\x5c")
+DEF_INSTR(0x406, POP_R13,      0, 2, 0, "\x41\x5d")
+DEF_INSTR(0x407, POP_RAX,      0, 1, 0, "\x58")
+DEF_INSTR(0x408, CMP_R12_R13,  0, 3, 0, "\x4d\x39\xec")
+DEF_INSTR(0x409, JMP,          1, 5, 1, "\xe9")
+DEF_INSTR(0x40a, JGE,          1, 6, 1, "\x0f\x8d")
+DEF_INSTR(0x40b, JG,           1, 6, 1, "\x0f\x8f")
+DEF_INSTR(0x40c, JLE,          1, 6, 1, "\x0f\x8e")
+DEF_INSTR(0x40d, JL,           1, 6, 1, "\x0f\x8c")
+DEF_INSTR(0x40e, JNE,          1, 6, 1, "\x0f\x85")
+DEF_INSTR(0x40f, JE,           1, 6, 1, "\x0f\x84")
+DEF_INSTR(0x410, ADD,          0, 3, 0, "\x4d\x01\xec")                                        // add r12, r13
+DEF_INSTR(0x411, ADD_RSP_8,    0, 4, 0, "\x48\x83\xc4\x08")
+DEF_INSTR(0x412, SUB,          0, 3, 0, "\x4d\x29\xec")                                        // sub r12, r13
+DEF_INSTR(0x413, IMUL,         0, 4, 0, "\x4d\x0f\xaf\xe5")                             // imul r12, r13
+DEF_INSTR(0x414, DIV,          0, 4, 0, "\x49\xf7\xf5")
+DEF_INSTR(0x415, MOV_RAX_R12,  0, 3, 0, "\x4c\x89\xe0")
+DEF_INSTR(0x416, MOV_RAX_IMM,  1, 7, 0, "\x48\xc7\xc0")
+DEF_INSTR(0x417, MOV_R12_RAX,  0, 3, 0, "\x49\x89\xc4")
+DEF_INSTR(0x418, MOV_R12_MEM,  1, 7, 0, "\x4c\x8b\x63")                                        // mov r12, [rbx + arg]
+DEF_INSTR(0x419, MOV_MEM_RAX,  1, 7, 0, "\x48\x89\x43")                                        // mov [rbx + arg], rax
+DEF_INSTR(0x41a, MOV_MEM_R12,  1, 7, 0, "\x4c\x89\x63")                                        // mov [rbx + arg], r12
+DEF_INSTR(0x41b, RET,          0, 1, 0, "\xc3")
+DEF_INSTR(0x41c, ADD_RBX,      1, 7, 0, "\x48\x81\xc3")
+DEF_INSTR(0x41d, SUB_RBX,      1, 7, 0, "\x48\x81\xeb")
+DEF_INSTR(0x41e, XOR_RDX_RDX,  0, 3, 0, "\x48\x31\xd2")

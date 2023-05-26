@@ -3,8 +3,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#define DEF_INSTR(num, name, has_arg, len, addr_arg, ...) name = num,
+#define DEF_INSTR(num, name, has_arg, len, addr_arg, byte_sequence) name = num,
 
 typedef enum CommandEnum {
     #include "cmd_codegen"
@@ -37,6 +38,6 @@ void optimize(cmds_t *array);
 
 void printArray(cmds_t *array, char *dest);
 
-cmd_t *addCmd(cmds_t *array, cmd_type_t name, int arg);
+void addCmd(cmds_t *array, cmd_type_t name, int arg);
 
 #endif

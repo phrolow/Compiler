@@ -23,10 +23,10 @@ void optimize(cmds_t *array) {
 
                         /* CODEGEN MACRO*/
 
-#define DEF_INSTR(num, name, has_arg, len, addr_arg, ...)                           \
+#define DEF_INSTR(num, name, has_arg, len, addr_arg, byte_sequence)                 \
     case name:                                                                      \
-        size_t sequence_len = len - has_arg * sizeof(array->cmds[i].arg);           \
-        strncpy(dest, {__VA_ARGS__}, sequence_len);                                 \
+        sequence_len = strlen(byte_sequence);                                       \
+        strcpy(dest, byte_sequence);                                                \
         dest += sequence_len;                                                       \
         if(has_arg) {                                                               \
             *((u_int32_t *) dest) = array->cmds[i].arg;                             \
@@ -36,10 +36,14 @@ void optimize(cmds_t *array) {
 
                         /* ------------ */
 
+#define COMMA ,
+
 // TODO: optimization for enshorting arg - such as short jmps and arithms
 
 void printArray(cmds_t *array, char *dest) {
     for(size_t i = 0; i < array->num_cmds; i++) {
+        size_t sequence_len = 0;
+
         switch (array->cmds[i].name)
         {
         #include "cmd_codegen"
@@ -53,15 +57,15 @@ void printArray(cmds_t *array, char *dest) {
 
                         /* CODEGEN MACRO*/
 
-#define DEF_INSTR(num, name, has_arg, len, addr_arg, ...)   \
-    case name:                                              \
-        cmd->has_addr_arg = (bool) addr_arg;                \
-        cmd->length = len;                                  \
+#define DEF_INSTR(num, name, has_arg, len, addr_arg, byte_sequence)     \
+    case name:                                                          \
+        cmd->has_addr_arg = (bool) addr_arg;                            \
+        cmd->length = len;                                              \
         break;
 
                         /* ------------ */
 
-cmd_t *addCmd(cmds_t *array, cmd_type_t name, int arg) {
+void addCmd(cmds_t *array, cmd_type_t name, int arg) {
     cmd_t *cmd = array->cmds + array->num_cmds;
 
     cmd->name = name;

@@ -102,7 +102,7 @@ void GenerateDefParams(struct Node *node, struct List *NT, struct Compiler *comp
 
     // BYTE4(0x48, 0x89, 0x43, 8 * (index - 1));   // mov [rbx + 8(index - 1)], rax    ; rax is arg
 
-    addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1))
+    addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
 }
 
 void GenerateMain(struct Node *node, struct List *NT, struct Compiler *compiler) {
