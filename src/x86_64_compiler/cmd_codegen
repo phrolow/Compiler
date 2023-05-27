@@ -23,9 +23,9 @@ DEF_INSTR(0x414, DIV,          0, 4, 0, "\x49\xf7\xf5")
 DEF_INSTR(0x415, MOV_RAX_R12,  0, 3, 0, "\x4c\x89\xe0")
 DEF_INSTR(0x416, MOV_RAX_IMM,  1, 7, 0, "\x48\xc7\xc0")
 DEF_INSTR(0x417, MOV_R12_RAX,  0, 3, 0, "\x49\x89\xc4")
-DEF_INSTR(0x418, MOV_R12_MEM,  1, 7, 0, "\x4c\x8b\x63")                                        // mov r12, [rbx + arg]
-DEF_INSTR(0x419, MOV_MEM_RAX,  1, 7, 0, "\x48\x89\x43")                                        // mov [rbx + arg], rax
-DEF_INSTR(0x41a, MOV_MEM_R12,  1, 7, 0, "\x4c\x89\x63")                                        // mov [rbx + arg], r12
+DEF_INSTR(0x418, MOV_R12_MEM,  1, 7, 0, "\x4c\x8b\xa3")                                        // mov r12, [rbx + arg]
+DEF_INSTR(0x419, MOV_MEM_RAX,  1, 7, 0, "\x48\x89\x83")                                        // mov [rbx + arg], rax
+DEF_INSTR(0x41a, MOV_MEM_R12,  1, 7, 0, "\x4c\x89\xa3")                                        // mov [rbx + arg], r12
 DEF_INSTR(0x41b, RET,          0, 1, 0, "\xc3")
 DEF_INSTR(0x41c, ADD_RBX,      1, 7, 0, "\x48\x81\xc3")
 DEF_INSTR(0x41d, SUB_RBX,      1, 7, 0, "\x48\x81\xeb")

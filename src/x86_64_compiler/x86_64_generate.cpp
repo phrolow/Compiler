@@ -169,13 +169,14 @@ void generateBinary(tree *tree, Compiler *compiler) {
 
     GenerateGS(tree->root, compiler);
 
-    ListDtor(compiler->GlobalNT);
-
     reinitCompiler(compiler, compiler->out);
 
     compiler->GlobalNT = newList();
 
     GenerateGS(tree->root, compiler);
+
+    printArray(compiler->cmds, compiler->ip);
+    cmdArrayDtor(compiler->cmds);
 }
 
 void GenerateGS(struct Node *node, struct Compiler *compiler) {
@@ -239,7 +240,6 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
     
     printArray(compiler->cmds, compiler->ip);
 
-    cmdArrayDtor(compiler->cmds);
     ListDtor(NT);
 }
 

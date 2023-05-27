@@ -33,6 +33,9 @@ void reinitCompiler(Compiler *compiler, char *out) {
     
     compiler->ip = compiler->memory;
 
+    cmdArrayDtor(compiler->cmds);
+    ListDtor(compiler->GlobalNT);
+
     compiler->memory = NULL;
     compiler->libs = NULL;
     compiler->instructions = NULL;
