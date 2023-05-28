@@ -77,7 +77,7 @@ void generateElfHead(Compiler *compiler) {
     Elf64_Phdr *text_header = (Elf64_Phdr *) compiler->ip;
 
     text_header->p_type   = PT_LOAD;                    // loadable segment
-    text_header->p_flags  = PF_R | PF_W | PF_X;         // readable, writeable and executable segment
+    text_header->p_flags  = PF_X;                       // executable segment
 
     text_header->p_offset = TEXT_START;                            // segment file offset
     text_header->p_vaddr  = X64_VA_START + TEXT_START;     // segment VA

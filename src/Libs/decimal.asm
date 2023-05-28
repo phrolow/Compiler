@@ -25,7 +25,7 @@ decimal push rbp
 .skip_neg:
         mov rcx, 18                 ; num of chars in 
 
-        lea rsi, [rel buf]          ; output buffer
+        mov rsi, 0x400800           ; output buffer
 
         mov [rsi + rcx + 1], byte 0xa
 
@@ -62,5 +62,3 @@ decimal push rbp
 
         pop rbp
         ret
-
-buf db 0x20 dup(0)

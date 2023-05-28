@@ -87,7 +87,8 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
 
     compiler->instructions = compiler->ip;
 
-    BYTE3(0x48, 0xc7, 0xc3); INT(X64_VA_START + DATA_START);    // mov rbx, 0x401000
+    BYTE3(0x48, 0xc7, 0xc3); INT(X64_VA_START + DATA_START 
+                                        + LIBS_BUFS_OFFSET);    // mov rbx, 0x401000
     BYTE1(0xe8); putAddress("main", POISON, compiler);          // call main
     BYTE7(0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00);            // mov rax, 0x3c
     BYTE3(0x48, 0x31, 0xff);                                    // xor rdi, rdi

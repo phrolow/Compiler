@@ -13,12 +13,12 @@ _in     push rbp
         
         xor rax, rax
         xor rdi, rdi
-        lea rsi, [rel buf]
+        mov rsi, 0x400820
         mov rdx, 0x20
 
         syscall
 
-        lea rsi, [rel buf]
+        mov rsi, 0x400820
         xor rax, rax
         mov r8, 10
         xor rcx, rcx
@@ -39,5 +39,3 @@ _in     push rbp
 
         pop rbp
         ret
-
-buf db 0x20 dup(0)
