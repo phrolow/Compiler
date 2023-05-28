@@ -68,14 +68,10 @@ int IsLogOper(struct Node *node) {
 }
 
 void IncreaseRBX(const size_t number, struct Compiler *compiler) {
-    // BYTE4(0x48, 0x83, 0xc3, number * 8); // add rbx, number * 8
-
     addCmd(compiler->cmds, ADD_RBX, number * 8);
 }
 
 void DecreaseRBX(const size_t number, struct Compiler *compiler) {
-    // BYTE4(0x48, 0x83, 0xeb, number * 8); // sub rbx, number * 8
-
     addCmd(compiler->cmds, SUB_RBX, number * 8);
 }
 
@@ -255,10 +251,6 @@ void InitGlobVar(struct Node *node, struct Compiler *compiler) {
 
     GenerateGlobExpr(node->children[RIGHT], compiler);
 
-    // BYTE2(0x41, 0x5c);                          // pop r12
-    // BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
-    //                                             // risk if there're 17 or more global vars
-
     addCmd(compiler->cmds, POP_R12, POISON);
     addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
 }
@@ -275,10 +267,6 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
         assert(index >= 1);
 
-        // BYTE2(0x41, 0x5c);                          // pop r12
-        // BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
-        //                                             // risk if there're 17 or more global vars
-
         addCmd(compiler->cmds, POP_R12, POISON);
         addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
 
@@ -292,10 +280,6 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
     assert(index >= 1);
 
     GenerateExpr(node->children[RIGHT], NT, compiler);
-
-    // BYTE2(0x41, 0x5c);                          // pop r12
-    // BYTE4(0x4c, 0x89, 0x63, (index - 1) * 8);   // mov [rbx + (index - 1) * 8], r12 
-    //                                             // risk if there're 17 or more global vars
 
     addCmd(compiler->cmds, POP_R12, POISON);
     addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);

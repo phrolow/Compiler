@@ -1,6 +1,7 @@
 #ifndef IR_H_INCLUDED
 #define IR_H_INCLUDED
 
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -13,13 +14,14 @@ typedef enum CommandEnum {
 } cmd_type_t;
 
 typedef struct CommandStruct {
-    cmd_type_t name;
+    int name;
 
     size_t length;
     char* ip;    
     int arg;
 
     bool has_addr_arg;
+    bool is_short;
 } cmd_t;
 
 typedef struct CommandsArray {
@@ -27,6 +29,9 @@ typedef struct CommandsArray {
     size_t num_cmds;
     char* ip;
 } cmds_t;
+
+const size_t PUSH_POP_DIFF = 0x40;
+const size_t INT_SCHAR_SIZE_DIFF = sizeof(int) - sizeof(char);
 
 void cmdArrayCtor(cmds_t *array, size_t num_cmds, char *ip);
 

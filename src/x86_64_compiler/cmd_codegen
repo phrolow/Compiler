@@ -15,9 +15,9 @@ DEF_INSTR(0x40c, JLE,          1, 6, 1, "\x0f\x8e")
 DEF_INSTR(0x40d, JL,           1, 6, 1, "\x0f\x8c")
 DEF_INSTR(0x40e, JNE,          1, 6, 1, "\x0f\x85")
 DEF_INSTR(0x40f, JE,           1, 6, 1, "\x0f\x84")
-DEF_INSTR(0x410, ADD,          0, 3, 0, "\x4d\x01\xec")                                        // add r12, r13
+DEF_INSTR(0x410, ADD,          0, 3, 0, "\x4d\x01\xec")                                 // add r12, r13
 DEF_INSTR(0x411, ADD_RSP_8,    0, 4, 0, "\x48\x83\xc4\x08")
-DEF_INSTR(0x412, SUB,          0, 3, 0, "\x4d\x29\xec")                                        // sub r12, r13
+DEF_INSTR(0x412, SUB,          0, 3, 0, "\x4d\x29\xec")                                 // sub r12, r13
 DEF_INSTR(0x413, IMUL,         0, 4, 0, "\x4d\x0f\xaf\xe5")                             // imul r12, r13
 DEF_INSTR(0x414, DIV,          0, 4, 0, "\x49\xf7\xf5")
 DEF_INSTR(0x415, MOV_RAX_R12,  0, 3, 0, "\x4c\x89\xe0")
@@ -30,3 +30,15 @@ DEF_INSTR(0x41b, RET,          0, 1, 0, "\xc3")
 DEF_INSTR(0x41c, ADD_RBX,      1, 7, 0, "\x48\x81\xc3")
 DEF_INSTR(0x41d, SUB_RBX,      1, 7, 0, "\x48\x81\xeb")
 DEF_INSTR(0x41e, XOR_RDX_RDX,  0, 3, 0, "\x48\x31\xd2")
+DEF_INSTR(0x489, JMP_SHORT,    1, 2, 1, "\xeb")
+DEF_INSTR(0x48a, JGE_SHORT,    1, 2, 1, "\x7d")
+DEF_INSTR(0x48b, JG_SHORT,     1, 2, 1, "\x7f")
+DEF_INSTR(0x48c, JLE_SHORT,    1, 2, 1, "\x7e")
+DEF_INSTR(0x48d, JL_SHORT,     1, 2, 1, "\x7c")
+DEF_INSTR(0x48e, JNE_SHORT,    1, 2, 1, "\x75")
+DEF_INSTR(0x48f, JE_SHORT,     1, 2, 1, "\x74")
+DEF_INSTR(0x498, MOV_R12_MEM_SHORT,  1, 4, 0, "\x4c\x8b\x63")                                        // mov r12, [rbx + arg]
+DEF_INSTR(0x499, MOV_MEM_RAX_SHORT,  1, 4, 0, "\x48\x89\x43")                                        // mov [rbx + arg], rax
+DEF_INSTR(0x49a, MOV_MEM_R12_SHORT,  1, 4, 0, "\x4c\x89\x63")                                        // mov [rbx + arg], r12
+DEF_INSTR(0x49c, ADD_RBX_SHORT,      1, 4, 0, "\x48\x83\xc3")
+DEF_INSTR(0x49d, SUB_RBX_SHORT,      1, 4, 0, "\x48\x83\xeb")

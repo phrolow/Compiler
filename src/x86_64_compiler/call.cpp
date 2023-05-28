@@ -19,9 +19,6 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     IncreaseRBX(num_vars, compiler);
 
-    // BYTE1(0xe8); putAddress(name->val->value.name, POISON, compiler); // call name->val->value.name
-    // BYTE1(0x50);                                                      // push rax
-
     addCmd(compiler->cmds, CALL, relAddress(name->val->value.name, POISON, compiler));
     addCmd(compiler->cmds, PUSH_RAX, POISON);
 
@@ -43,11 +40,6 @@ void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compile
     (*num_of_params)++;
 
     GenerateExpr(node->children[LEFT], NT, compiler);
-
-    // BYTE2(0x41, 0x5c);                              // pop r12
-    // BYTE4(0x4c, 0x89, 0x63, NT->size * 8);          // mov [rbx + 8 * num_of_vars], r12      
-
-    // BYTE1(0x58);    // pop rax
 
     addCmd(compiler->cmds, POP_RAX, POISON);
 }
@@ -99,8 +91,6 @@ void GenerateDefParams(struct Node *node, struct List *NT, struct Compiler *comp
     }
 
     size_t index = SearchInNametable(node->children[LEFT], NT);
-
-    // BYTE4(0x48, 0x89, 0x43, 8 * (index - 1));   // mov [rbx + 8(index - 1)], rax    ; rax is arg
 
     addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
 }
