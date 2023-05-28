@@ -30,6 +30,7 @@ typedef struct CommandsArray {
     char* ip;
 } cmds_t;
 
+const size_t SHORT_DIFF = 0x80;
 const size_t PUSH_POP_DIFF = 0x40;
 const size_t INT_SCHAR_SIZE_DIFF = sizeof(int) - sizeof(char);
 

@@ -80,6 +80,16 @@ void addCmd(cmds_t *array, cmd_type_t name, int arg) {
         return;
     }
 
+    if(cmd->arg < (int) (SCHAR_MAX - INT_SCHAR_SIZE_DIFF) 
+        && arg > (int) (SCHAR_MIN + INT_SCHAR_SIZE_DIFF)
+        && name != MOV_RAX_IMM 
+        && name != CALL) 
+    {
+            cmd->name += SHORT_DIFF;
+            cmd->is_short = true;
+
+    }
+
     switch(name) {
         #include "cmd_codegen"
         #undef DEF_INSTR
@@ -93,20 +103,6 @@ void addCmd(cmds_t *array, cmd_type_t name, int arg) {
     cmd->ip = array->ip;
 
     cmd->is_short = false;
-
-    if(arg < SCHAR_MAX - INT_SCHAR_SIZE_DIFF 
-        && arg > SCHAR_MIN + INT_SCHAR_SIZE_DIFF
-        && name != MOV_RAX_IMM 
-        && name != CALL) 
-        {
-            cmd->name += 0x80;
-            cmd->is_short = true;
-            cmd->length -= INT_SCHAR_SIZE_DIFF;
-
-            if(cmd->has_addr_arg) {
-                arg += INT_SCHAR_SIZE_DIFF;
-        }
-    }
 
     array->ip += cmd->length;
     array->num_cmds++;
