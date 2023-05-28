@@ -31,7 +31,7 @@ struct Compiler *newCompiler(char *out) {
 void reinitCompiler(Compiler *compiler, char *out) {
     compiler->out = out;
     
-    compiler->ip = compiler->memory;
+    compiler->ip = compiler->instructions;
 
     cmdArrayDtor(compiler->cmds);
     ListDtor(compiler->GlobalNT);

@@ -47,15 +47,18 @@ struct Compiler {
 
 const size_t BUF_ALIGNMENT = 0x1000;
 const size_t BUFSIZE = 0x3000;
-const size_t ENTRY_POINT = 0x1000;
-const size_t HEADER_SIZE = sizeof(Elf64_Ehdr) + sizeof(Elf64_Phdr);
+const size_t DATA_START = 0x800;
+const size_t HEADER_SIZE = sizeof(Elf64_Ehdr) + 2 * sizeof(Elf64_Phdr);
 const size_t IN_SIZE = 0x61;
 const size_t LIB_ALIGNMENT = 0x400; 
 const size_t LIBS_SIZE = 0x800;                   
-const size_t MEMORY_SIZE = 0x800;
 const size_t NUM_CMDS = 0x800;                                      // виноват, лень реаллочить
 const size_t OUT_SIZE = 0x8D;
+const size_t TEXT_START = 0x1000;
 const size_t X64_VA_START = 0x400000;
+
+const size_t MEMORY_SIZE = TEXT_START - DATA_START;
+const size_t ENTRY_POINT = TEXT_START + LIBS_SIZE;
 
 const size_t POISON  = 0xbaadf00d;
 
@@ -114,7 +117,7 @@ void        putAddress64            (const char *format, size_t index, struct Co
 uint32_t    relAddress              (const char *format, size_t index, struct Compiler *compiler);
 
 void generateBinary    (tree *tree, Compiler *compiler);
-void generateELF       (FILE *fp);
+void generateElfHead   (Compiler *compiler);
 void generateLibs      (struct Compiler *compiler);
 
 void generateMemory(struct Compiler *compiler);
