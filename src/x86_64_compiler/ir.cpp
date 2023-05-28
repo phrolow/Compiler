@@ -5,20 +5,14 @@ void cmdArrayCtor(cmds_t *array, size_t num_cmds, char *ip) {
 
     array->ip = ip;
     array->num_cmds = 0;
-    array->size_excluded = 0;
 }
 
 void cmdArrayDtor(cmds_t *array) {
     array->ip = NULL;
     array->num_cmds = 0;
-    array->size_excluded = -1;
 
     free(array->cmds);
     free(array);
-}
-
-void optimize(cmds_t *array) {
-
 }
 
                         /* CODEGEN MACRO*/
@@ -66,9 +60,16 @@ void printArray(cmds_t *array, char *dest) {
                         /* ------------ */
 
 void addCmd(cmds_t *array, cmd_type_t name, int arg) {
-    cmd_t *cmd = array->cmds + array->num_cmds;
+    size_t cmd_index = array->num_cmds;
 
-    cmd->name = name;
+    cmd_t *cmd = array->cmds + cmd_index;
+
+    if(cmd_index && (name - array->cmds[cmd_index - 1].name == 0x40)) {        // push pop case
+        array->num_cmds--;
+        array->ip -= array->cmds[cmd_index - 1].length;
+
+        return;
+    }
 
     switch(name) {
         #include "cmd_codegen"
@@ -78,8 +79,8 @@ void addCmd(cmds_t *array, cmd_type_t name, int arg) {
             break;
     }
 
+    cmd->name = name;
     cmd->arg = arg;
-    cmd->included = true;
     cmd->ip = array->ip;
 
     array->ip += cmd->length;
