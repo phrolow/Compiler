@@ -1,6 +1,6 @@
 #include "compiler.h"
 
-void GenerateMark(struct Node *mark, struct Compiler *compiler) {
+void generateMark(struct Node *mark, struct Compiler *compiler) {
     if (mark->val->type == VAR_TYPE || NODE_KEYW(mark, KEYW_MAIN)) {
         if (mark->val->type == VAR_TYPE) {
             generateLabelFromCmds(mark->val->value.name, POISON, compiler);

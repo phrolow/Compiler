@@ -9,15 +9,15 @@ void generateBinary(tree *tree, Compiler *compiler) {
 
     generateLibs(compiler);
 
-    compiler->GlobalNT = newList();
+    compiler->global_NT = newList();
 
-    GenerateGS(tree->root, compiler);
+    generateGS(tree->root, compiler);
 
     reinitCompiler(compiler, compiler->out);
 
-    compiler->GlobalNT = newList();
+    compiler->global_NT = newList();
 
-    GenerateGS(tree->root, compiler);
+    generateGS(tree->root, compiler);
 
     printArray(compiler->cmds, compiler->ip);
     cmdArrayDtor(compiler->cmds);

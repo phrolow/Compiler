@@ -10,9 +10,9 @@ struct Compiler *newCompiler(char *out) {
 
     compiler->node_main = NULL;
     compiler->out = out;
-    compiler->__IF_COUNTER__ = 0;
-    compiler->__WHILE_COUNTER__ = 0;
-    compiler->GlobalNT = NULL;
+    compiler->if_counter = 0;
+    compiler->while_counter = 0;
+    compiler->global_NT = NULL;
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = 0;
@@ -34,7 +34,7 @@ void reinitCompiler(Compiler *compiler, char *out) {
     compiler->ip = compiler->instructions;
 
     cmdArrayDtor(compiler->cmds);
-    ListDtor(compiler->GlobalNT);
+    ListDtor(compiler->global_NT);
 
     compiler->memory = NULL;
     compiler->libs = NULL;
@@ -42,9 +42,9 @@ void reinitCompiler(Compiler *compiler, char *out) {
     compiler->end = NULL;
 
     compiler->node_main = NULL;
-    compiler->__IF_COUNTER__ = 0;
-    compiler->__WHILE_COUNTER__ = 0;
-    compiler->GlobalNT = NULL;
+    compiler->if_counter = 0;
+    compiler->while_counter = 0;
+    compiler->global_NT = NULL;
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = 0;
@@ -55,7 +55,7 @@ void reinitCompiler(Compiler *compiler, char *out) {
     compiler->count_label = 0;
 }
 
-void CompilerDtor(struct Compiler *compiler) {
+void compilerDtor(struct Compiler *compiler) {
     compiler->out = NULL;
 
     compiler->memory = NULL;
@@ -64,11 +64,11 @@ void CompilerDtor(struct Compiler *compiler) {
     compiler->end = NULL;
     
     compiler->node_main = NULL;
-    compiler->__IF_COUNTER__    = POISON;
-    compiler->__WHILE_COUNTER__ = POISON;
+    compiler->if_counter    = POISON;
+    compiler->while_counter = POISON;
 
-    ListDtor(compiler->GlobalNT);
-    compiler->GlobalNT = NULL;
+    ListDtor(compiler->global_NT);
+    compiler->global_NT = NULL;
 
     compiler->local_vars = NULL;
 

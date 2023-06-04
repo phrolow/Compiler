@@ -1,6 +1,6 @@
 #include "compiler.h"
 
-void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generateCall(struct Node *node, struct List *NT, struct Compiler *compiler) {
     struct Node *params = node->children[RIGHT];
 
     if(!params)
@@ -8,7 +8,7 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     size_t num_of_params = 0;
 
-    InitCallParams(params, NT, compiler, &num_of_params);
+    initCallParams(params, NT, compiler, &num_of_params);
 
     if(num_of_params != 1)
         PRINT_("Not one parameter");
@@ -25,7 +25,7 @@ void GenerateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
     DecreaseRBX(num_vars, compiler);
 }
 
-void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compiler, size_t *num_of_params) {
+void initCallParams(struct Node *node, struct List *NT, struct Compiler *compiler, size_t *num_of_params) {
     if(!num_of_params)
         PRINT_("Null pointer to number of parameters");
 
@@ -39,12 +39,12 @@ void InitCallParams(struct Node *node, struct List *NT, struct Compiler *compile
 
     (*num_of_params)++;
 
-    GenerateExpr(node->children[LEFT], NT, compiler);
+    generateExpr(node->children[LEFT], NT, compiler);
 
     addCmd(compiler->cmds, POP_RAX, POISON);
 }
 
-void GenerateFuncDef(struct Node *node, struct List *NT, struct Compiler *compiler)
+void generateFuncDef(struct Node *node, struct List *NT, struct Compiler *compiler)
 {
     struct Node *func   = node->children[LEFT];
     struct Node *mark   = func->children[LEFT];
@@ -63,10 +63,10 @@ void GenerateFuncDef(struct Node *node, struct List *NT, struct Compiler *compil
 
     struct Node *params = func->children[RIGHT];
     compiler->free_memory_index = 0;
-    GenerateMark(mark, compiler);
+    generateMark(mark, compiler);
 
     if (params) {
-        GenerateDefParams(params, NT, compiler);
+        generateDefParams(params, NT, compiler);
     }
 
     struct Node *stmts  = node->children[RIGHT];
@@ -76,26 +76,26 @@ void GenerateFuncDef(struct Node *node, struct List *NT, struct Compiler *compil
     ListInit(NT);
 }
 
-void GenerateDefParams(struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generateDefParams(struct Node *node, struct List *NT, struct Compiler *compiler) {
     if (node->children[RIGHT]) {
         return;
     }
     else {
         compiler->free_memory_index = 1;
-        if (SearchInNametable(node->children[LEFT], compiler->GlobalNT)) {
+        if (searchInNametable(node->children[LEFT], compiler->global_NT)) {
             PRINT("Variable is already defined");
         }
         else {
-            PushInNametable(node->children[LEFT], NT);
+            pushInNametable(node->children[LEFT], NT);
         }
     }
 
-    size_t index = SearchInNametable(node->children[LEFT], NT);
+    size_t index = searchInNametable(node->children[LEFT], NT);
 
     addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
 }
 
-void GenerateMain(struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generateMain(struct Node *node, struct List *NT, struct Compiler *compiler) {
     if (!compiler->node_main) {
         PRINT_("No main function in your source");
 
@@ -105,8 +105,8 @@ void GenerateMain(struct Node *node, struct List *NT, struct Compiler *compiler)
     struct Node *func = node->children[LEFT];
     struct Node *main = func->children[LEFT];
 
-    GenerateMark(main, compiler);
-    IncreaseRBX(gettail(compiler->GlobalNT) + 1, compiler);
+    generateMark(main, compiler);
+    IncreaseRBX(gettail(compiler->global_NT) + 1, compiler);
 
     TREE_ERROR node_err = NodeVerify(node);
 

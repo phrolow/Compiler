@@ -19,7 +19,7 @@ void CreateKeyword(token_t **token, KEYW keyword) {
     (*token)->value.keyword = keyword;
 }
 
-int IsNum(struct Node *node) {
+int isNum(struct Node *node) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -31,7 +31,7 @@ int IsNum(struct Node *node) {
     return (node->val->type == NUM_TYPE);
 }
 
-int IsVar(struct Node *node) {
+int isVar(struct Node *node) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -43,7 +43,7 @@ int IsVar(struct Node *node) {
     return (node->val->type == VAR_TYPE && node->parent && KEYW(node->parent) != KEYW_DEFINE);
 }
 
-int IsMathOper(struct Node *node) {
+int isMathOper(struct Node *node) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -55,7 +55,7 @@ int IsMathOper(struct Node *node) {
     return ((KEYW(node) != 0) && (KEYW(node) >= KEYW_ADD) && (KEYW(node) <= KEYW_POW));
 }
 
-int IsLogOper(struct Node *node) {
+int isLogOper(struct Node *node) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -75,7 +75,7 @@ void DecreaseRBX(const size_t number, struct Compiler *compiler) {
     addCmd(compiler->cmds, SUB_RBX, number * 8);
 }
 
-void GenerateGS(struct Node *node, struct Compiler *compiler) {
+void generateGS(struct Node *node, struct Compiler *compiler) {
     if (!NODE_KEYW(node, KEYW_STMT)) {
         PRINT_("It's not global statement");
 
@@ -104,7 +104,7 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
     while (node) {
         if (KEYW(node->children[LEFT]) == KEYW_ASSIGN)
         {
-            GenerateAssign(node, NULL, compiler);
+            generateAssign(node, NULL, compiler);
         }
 
         node = node->parent;
@@ -116,7 +116,7 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
 
     while (node) {
         if (NODE_KEYW(node->children[LEFT], KEYW_DEFINE)) {
-            GenerateFuncDef(node->children[LEFT], NT, compiler);
+            generateFuncDef(node->children[LEFT], NT, compiler);
         } else if (NODE_KEYW(node->children[LEFT], KEYW_ASSIGN)) {
             node = node->parent;
             continue;
@@ -130,38 +130,38 @@ void GenerateGS(struct Node *node, struct Compiler *compiler) {
         node = node->parent;
     }
 
-    GenerateMain(compiler->node_main, NT, compiler);
+    generateMain(compiler->node_main, NT, compiler);
     
     printArray(compiler->cmds, compiler->ip);
 
     ListDtor(NT);
 }
 
-void InitGlobVar(struct Node *node, struct Compiler *compiler) {
-    if (SearchInNametable(node->children[LEFT], compiler->GlobalNT))
+void initGlobVar(struct Node *node, struct Compiler *compiler) {
+    if (searchInNametable(node->children[LEFT], compiler->global_NT))
         PRINT_("Repeating definition");
 
-    PushInNametable(node->children[LEFT], compiler->GlobalNT);
+    pushInNametable(node->children[LEFT], compiler->global_NT);
 
-    size_t index = IndexNametable(node->children[LEFT], compiler->GlobalNT);
+    size_t index = indexNametable(node->children[LEFT], compiler->global_NT);
 
     assert(index >= 1);
 
-    GenerateGlobExpr(node->children[RIGHT], compiler);
+    generateGlobExpr(node->children[RIGHT], compiler);
 
     addCmd(compiler->cmds, POP_R12, POISON);
     addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
 }
 
-void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
-    if(SearchInNametable(node->children[LEFT], compiler->GlobalNT)) 
+void initVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
+    if(searchInNametable(node->children[LEFT], compiler->global_NT)) 
         PRINT_("Repeating variable");
 
-    if (SearchInNametable(node->children[LEFT], NT))
+    if (searchInNametable(node->children[LEFT], NT))
     {
-        GenerateExpr(node->children[RIGHT], NT, compiler);
+        generateExpr(node->children[RIGHT], NT, compiler);
 
-        size_t index = IndexNametable(node->children[LEFT], NT);
+        size_t index = indexNametable(node->children[LEFT], NT);
 
         assert(index >= 1);
 
@@ -171,13 +171,13 @@ void InitVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
         return;
     }
 
-    PushInNametable(node->children[LEFT], NT);
+    pushInNametable(node->children[LEFT], NT);
 
-    size_t index = IndexNametable(node->children[LEFT], NT);
+    size_t index = indexNametable(node->children[LEFT], NT);
 
     assert(index >= 1);
 
-    GenerateExpr(node->children[RIGHT], NT, compiler);
+    generateExpr(node->children[RIGHT], NT, compiler);
 
     addCmd(compiler->cmds, POP_R12, POISON);
     addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);

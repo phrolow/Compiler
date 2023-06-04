@@ -1,7 +1,7 @@
 #include "compiler.h"
 #include "../config.h"
 
-int language_compile(const char *in, const char *out) {
+int languageCompile(const char *in, const char *out) {
     tree *expression;
 
     text txt = textFromFile(in);
@@ -32,7 +32,7 @@ int language_compile(const char *in, const char *out) {
 
     free(buf);
 
-    CompilerDtor(compiler);
+    compilerDtor(compiler);
 
     return 0;
 }

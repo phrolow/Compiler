@@ -16,13 +16,13 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    language_compile(argv[1], argv[2]);
+    languageCompile(argv[1], argv[2]);
     printf("Compiled\n");
 
     #else
     printf("TESTING FACT\n");
 
-    language_compile("Code/fact.txt", BINPATH);
+    languageCompile("Code/fact.txt", BINPATH);
     
     runTests("Tests/fact_tests.txt");
 
@@ -30,7 +30,7 @@ int main(int argc, char **argv) {
 
     printf("\nTESTING FIB\n");
 
-    language_compile("Code/fib.txt", BINPATH);
+    languageCompile("Code/fib.txt", BINPATH);
     
     runTests("Tests/fib_tests.txt");
 

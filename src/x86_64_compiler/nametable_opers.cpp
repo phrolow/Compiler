@@ -1,7 +1,7 @@
 #include "compiler.h"
 
 
-int SearchInNametable(struct Node *node, struct List *NT) {
+int searchInNametable(struct Node *node, struct List *NT) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -23,7 +23,7 @@ int SearchInNametable(struct Node *node, struct List *NT) {
     return 0;
 }
 
-void PushInNametable(struct Node *node, struct List *NT) {
+void pushInNametable(struct Node *node, struct List *NT) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(NodeVerify(node)) {
@@ -43,7 +43,7 @@ void PushInNametable(struct Node *node, struct List *NT) {
     ListTailInsert(NT, name);
 }
 
-int IndexNametable(struct Node *node, struct List *NT) {
+int indexNametable(struct Node *node, struct List *NT) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(NodeVerify(node)) {

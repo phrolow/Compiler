@@ -1,30 +1,30 @@
 #include "compiler.h"
 
-void GenerateGlobExpr(struct Node *node, struct Compiler *compiler) {
+void generateGlobExpr(struct Node *node, struct Compiler *compiler) {
     if (KEYW(node) == KEYW_CALL) {
         PRINT_("Useless function in global space");
     }
     if (node->children[LEFT]) {
-        GenerateGlobExpr(node->children[LEFT], compiler);
+        generateGlobExpr(node->children[LEFT], compiler);
     }
     if (node->children[RIGHT]) {
-        GenerateGlobExpr(node->children[RIGHT], compiler);
+        generateGlobExpr(node->children[RIGHT], compiler);
     }
     
-    if (IsMathOper(node)) {
-        GenerateMathOper(node, compiler);
+    if (isMathOper(node)) {
+        generateMathOper(node, compiler);
 
         return;
     }
 
-    if (IsNum(node)) {
-        GenerateNum(node, compiler);
+    if (isNum(node)) {
+        generateNum(node, compiler);
 
         return;
     }
 
-    if (IsVar(node)) {
-        GenerateGlobVar(node, compiler);
+    if (isVar(node)) {
+        generateGlobVar(node, compiler);
 
         return;
     }
@@ -32,7 +32,7 @@ void GenerateGlobExpr(struct Node *node, struct Compiler *compiler) {
     PRINT_("Undefined operation");
 }
 
-void GenerateMathOper(struct Node *node, struct Compiler *compiler)
+void generateMathOper(struct Node *node, struct Compiler *compiler)
 {
     TREE_ERROR node_err = NodeVerify(node);
 
@@ -72,7 +72,7 @@ void GenerateMathOper(struct Node *node, struct Compiler *compiler)
     addCmd(compiler->cmds, PUSH_R12, POISON);
 }
 
-void GenerateNum(struct Node *node, struct Compiler *compiler)
+void generateNum(struct Node *node, struct Compiler *compiler)
 {
     TREE_ERROR node_err = NodeVerify(node);
 
@@ -87,9 +87,9 @@ void GenerateNum(struct Node *node, struct Compiler *compiler)
 }
 
 
-void GenerateGlobVar(struct Node *node, struct Compiler *compiler) {
-    if (SearchInNametable(node, compiler->GlobalNT)) {
-        size_t index = IndexNametable(node, compiler->GlobalNT);
+void generateGlobVar(struct Node *node, struct Compiler *compiler) {
+    if (searchInNametable(node, compiler->global_NT)) {
+        size_t index = indexNametable(node, compiler->global_NT);
 
         addCmd(compiler->cmds, MOV_R12_MEM, (index - 1) * 8);
         addCmd(compiler->cmds, PUSH_R12, POISON);
@@ -98,42 +98,42 @@ void GenerateGlobVar(struct Node *node, struct Compiler *compiler) {
     PRINT_("Global variable not found");
 }
 
-void GenerateExpr  (struct Node *node, struct List *NT, struct Compiler *compiler)
+void generateExpr  (struct Node *node, struct List *NT, struct Compiler *compiler)
 {
     if (KEYW(node) == KEYW_CALL)
     {
-        GenerateCall(node, NT, compiler);
+        generateCall(node, NT, compiler);
         
         return;
     }
 
     if (node->children[LEFT])
     {
-        GenerateExpr(node->children[LEFT],  NT, compiler);
+        generateExpr(node->children[LEFT],  NT, compiler);
         
     }
     if (node->children[RIGHT])
     {
-        GenerateExpr(node->children[RIGHT], NT, compiler);
+        generateExpr(node->children[RIGHT], NT, compiler);
     }
 
-    if (IsMathOper(node))
+    if (isMathOper(node))
     {
-        GenerateMathOper(node, compiler);
+        generateMathOper(node, compiler);
 
         return;
     }
 
-    if (IsNum(node))
+    if (isNum(node))
     {
-        GenerateNum(node, compiler);
+        generateNum(node, compiler);
 
         return;
     }
 
-    if (IsVar(node))
+    if (isVar(node))
     {
-        GenerateVar(node, NT, compiler);
+        generateVar(node, NT, compiler);
 
         return;
     }
@@ -141,15 +141,15 @@ void GenerateExpr  (struct Node *node, struct List *NT, struct Compiler *compile
     PRINT_("Undefined operator");
 }
 
-void GenerateVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
-    if (SearchInNametable(node, compiler->GlobalNT)) {
-        GenerateGlobVar(node, compiler);
+void generateVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
+    if (searchInNametable(node, compiler->global_NT)) {
+        generateGlobVar(node, compiler);
         return;
     }
 
-    if (SearchInNametable(node, NT))
+    if (searchInNametable(node, NT))
     {
-        size_t index = IndexNametable(node, NT);
+        size_t index = indexNametable(node, NT);
 
         addCmd(compiler->cmds, MOV_R12_MEM, (index - 1) * 8);
         addCmd(compiler->cmds, PUSH_R12, POISON);
@@ -169,12 +169,12 @@ void GenerateStmts (struct Node *node, struct List *NT, struct Compiler *compile
 
     while (NODE_KEYW(node, KEYW_STMT))
     {
-        GenerateStmt(node->children[LEFT], NT, compiler);
+        generateStmt(node->children[LEFT], NT, compiler);
         node = node->parent;
     }
 }
 
-void GenerateStmt  (struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generateStmt  (struct Node *node, struct List *NT, struct Compiler *compiler) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -189,32 +189,32 @@ void GenerateStmt  (struct Node *node, struct List *NT, struct Compiler *compile
     switch (KEYW(node))
     {
         case KEYW_ASSIGN:
-            GenerateAssign(node, NT, compiler);
+            generateAssign(node, NT, compiler);
             break;
         case KEYW_IF:
-            GenerateIf    (node, NT, compiler);
+            generateIf    (node, NT, compiler);
             break;
         case KEYW_WHILE:
-            GenerateWhile (node, NT, compiler);
+            generateWhile (node, NT, compiler);
             break;
         case KEYW_CALL:
-            GenerateCall  (node, NT, compiler);
+            generateCall  (node, NT, compiler);
             break;
         case KEYW_RETURN:
-            GenerateReturn(node, NT, compiler);
+            generateReturn(node, NT, compiler);
             break;
         case KEYW_SCAN:
-            GenerateScan  (node, NT, compiler);
+            generateScan  (node, NT, compiler);
             break;
         case KEYW_PRINT:
-            GeneratePrint (node, NT, compiler);
+            generatePrint (node, NT, compiler);
             break;
         case KEYW_ADD:
         case KEYW_SUB:
         case KEYW_MUL:
         case KEYW_DIV:
         case KEYW_POW:
-            GenerateExpr  (node, NT, compiler);
+            generateExpr  (node, NT, compiler);
             break;
         default:
             PRINT_("Invalid statement");
@@ -222,11 +222,11 @@ void GenerateStmt  (struct Node *node, struct List *NT, struct Compiler *compile
     }
 }
 
-void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
+void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
     if(!mark)
         PRINT_("Null pointer to label name");
 
-    if (!IsLogOper(node)) 
+    if (!isLogOper(node)) 
         PRINT_("There is no logical operator");
 
     addCmd(compiler->cmds, POP_R12,     POISON);
@@ -265,7 +265,7 @@ void GenerateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     }
 }
 
-void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generatePrint(struct Node *node, struct List *NT, struct Compiler *compiler) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -286,13 +286,13 @@ void GeneratePrint(struct Node *node, struct List *NT, struct Compiler *compiler
         PRINT_("No arg for print");
     }
 
-    GenerateExpr(node->children[LEFT], NT, compiler);
+    generateExpr(node->children[LEFT], NT, compiler);
 
     addCmd(compiler->cmds, CALL, relAddress("decimal", POISON, compiler));
     addCmd(compiler->cmds, ADD_RSP_8, POISON);
 }
 
-void GenerateScan(struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generateScan(struct Node *node, struct List *NT, struct Compiler *compiler) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -313,15 +313,15 @@ void GenerateScan(struct Node *node, struct List *NT, struct Compiler *compiler)
         PRINT_("No arg for scan");
     }
 
-    PushInNametable(node->children[LEFT], NT);
+    pushInNametable(node->children[LEFT], NT);
 
-    size_t index = IndexNametable(node->children[LEFT], NT);
+    size_t index = indexNametable(node->children[LEFT], NT);
 
     addCmd(compiler->cmds, CALL, relAddress("in", POISON, compiler));
     addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
 }
 
-void GenerateAssign(struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generateAssign(struct Node *node, struct List *NT, struct Compiler *compiler) {
     TREE_ERROR node_err = NodeVerify(node);
 
     if(node_err) {
@@ -334,14 +334,14 @@ void GenerateAssign(struct Node *node, struct List *NT, struct Compiler *compile
         PRINT_("No struct compiler");
 
     if (!NT) {
-        InitGlobVar(node, compiler);
+        initGlobVar(node, compiler);
         
     } else {
-        InitVar(node, NT, compiler);
+        initVar(node, NT, compiler);
     }
 }
 
-void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
+void generateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
     struct Node *else_node   = node->children[RIGHT];
 
     struct Node *condition  = node->children[LEFT];
@@ -357,11 +357,11 @@ void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
         else_stmts = else_node->children[RIGHT];
     }
 
-    size_t counter = compiler->__IF_COUNTER__++;
+    size_t counter = compiler->if_counter++;
 
     if (else_stmts)
     {
-        GenerateCond(condition, NT, compiler, "ELSE", counter);
+        generateCond(condition, NT, compiler, "ELSE", counter);
         GenerateStmts(if_stmts, NT, compiler);
 
         addCmd(compiler->cmds, JMP, relAddress("END_IF_%lu", counter, compiler));
@@ -372,29 +372,29 @@ void GenerateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
     }
     else
     {
-        GenerateCond(condition, NT, compiler, "END_IF", counter);
+        generateCond(condition, NT, compiler, "END_IF", counter);
         GenerateStmts(if_stmts, NT, compiler);
     }
 
     generateLabelFromCmds("END_IF_%lu", counter, compiler);
 }
 
-void GenerateCond(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
-    GenerateExpr(node->children[LEFT],  NT, compiler);
-    GenerateExpr(node->children[RIGHT], NT, compiler);
-    GenerateJump(node, NT, compiler, mark, num);
+void generateCond(struct Node *node, struct List *NT, struct Compiler *compiler, const char *mark, const int num) {
+    generateExpr(node->children[LEFT],  NT, compiler);
+    generateExpr(node->children[RIGHT], NT, compiler);
+    generateJump(node, NT, compiler, mark, num);
 }
 
-void GenerateWhile(struct Node *node, struct List *NT, struct Compiler *compiler)
+void generateWhile(struct Node *node, struct List *NT, struct Compiler *compiler)
 {
     struct Node *condition = node->children[LEFT];
     struct Node *while_stmts = node->children[RIGHT];
 
-    size_t counter = compiler->__WHILE_COUNTER__++;
+    size_t counter = compiler->while_counter++;
 
     generateLabelFromCmds("WHILE_%lu", counter, compiler);
 
-    GenerateCond(condition, NT, compiler, "END_WHILE", counter);
+    generateCond(condition, NT, compiler, "END_WHILE", counter);
     GenerateStmts(while_stmts, NT, compiler);
 
     addCmd(compiler->cmds, JMP, relAddress("WHILE_%lu", counter, compiler));
@@ -402,14 +402,14 @@ void GenerateWhile(struct Node *node, struct List *NT, struct Compiler *compiler
     generateLabelFromCmds("END_WHILE_%lu", counter, compiler);
 }
 
-void GenerateReturn(struct Node *node, struct List *NT, struct Compiler *compiler)
+void generateReturn(struct Node *node, struct List *NT, struct Compiler *compiler)
 {
     if (!NODE_KEYW(node, KEYW_RETURN)) {
         PRINT_("No return statement");
     }
 
     if(node->children[LEFT]) {
-        GenerateExpr(node->children[LEFT], NT, compiler);
+        generateExpr(node->children[LEFT], NT, compiler);
 
         addCmd(compiler->cmds, POP_RAX, POISON);
     }
