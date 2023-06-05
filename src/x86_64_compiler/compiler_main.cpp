@@ -10,11 +10,11 @@ int languageCompile(const char *in, const char *out) {
 
     textDtor(&txt);
 
-    char *buf = (char*) aligned_alloc(BUF_ALIGNMENT, BUFSIZE * sizeof(char));
+    char *buf = (char*) aligned_alloc(BUF_ALIGNMENT, ELF_SIZE * sizeof(char));
 
     memset(buf, 0, HEADER_SIZE);
     
-    memset(buf + HEADER_SIZE, 0xC3, BUFSIZE - HEADER_SIZE);                         // С3 - ret
+    memset(buf + HEADER_SIZE, 0xC3, ELF_SIZE - HEADER_SIZE);                         // С3 - ret
 
     Compiler *compiler = newCompiler(buf);                                          // save labels
 
@@ -24,7 +24,7 @@ int languageCompile(const char *in, const char *out) {
 
     FILE *bin = fopen(out, "wb");
 
-    fwrite(buf, sizeof(char), BUFSIZE, bin);
+    fwrite(buf, sizeof(char), ELF_SIZE, bin);
 
     fclose(bin);
 

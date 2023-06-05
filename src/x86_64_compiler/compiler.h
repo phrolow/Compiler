@@ -14,7 +14,7 @@
 #include "../List/list.h"
 
 #include "ir.h"
-#include "x86_64.h"
+#include "x86_64_macros.h"
 
 #define NODE_KEYW(NODE, KEYW) (NODE->val->type == KEYWORD_TYPE && NODE->val->value.keyword == KEYW)
 
@@ -47,9 +47,15 @@ struct Compiler {
     char *ip;
 };
 
+#ifdef DOUBLES
+const size_t EPSILON_LOCATION = X64_VA_START + DATA_START + LIBS_BUFS_OFFSET;
+const size_t CONSTS_ADDRESS = EPSILON_LOCATION + sizeof(double);
+#else
+const size_t CONSTS_ADDRESS = X64_VA_START + DATA_START + LIBS_BUFS_OFFSET;
+#endif
+const size_t ENTRY_POINT = TEXT_START + LIBS_SIZE;
 const size_t HEADER_SIZE = sizeof(Elf64_Ehdr) + 2 * sizeof(Elf64_Phdr);
 const size_t MEMORY_SIZE = TEXT_START - DATA_START;
-const size_t ENTRY_POINT = TEXT_START + LIBS_SIZE;
 
 const size_t POISON  = 0xbaadf00d;
 

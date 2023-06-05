@@ -82,8 +82,8 @@ void generateElfHead(Compiler *compiler) {
     text_header->p_offset = TEXT_START;                            // segment file offset
     text_header->p_vaddr  = X64_VA_START + TEXT_START;     // segment VA
     text_header->p_paddr  = 0x0;                            // segment physical address
-    text_header->p_filesz = BUFSIZE - TEXT_START;          // segment size in file
-    text_header->p_memsz  = BUFSIZE - TEXT_START;          // segment size in memory
+    text_header->p_filesz = ELF_SIZE - TEXT_START;          // segment size in file
+    text_header->p_memsz  = ELF_SIZE - TEXT_START;          // segment size in memory
 
     text_header->p_align  = 0x800;                          // segment alignment
 
@@ -93,9 +93,6 @@ void generateElfHead(Compiler *compiler) {
 void generateMemory(struct Compiler *compiler) {
     compiler->memory = compiler->ip;
 
-    // BYTE7(0x48, 0x8d, 0x1d, 0x00, 0x00, 0x00, 0x00);                                                // lea rbx, [rip]
-    // BYTE1(0xe9); *((u_int32_t *) (compiler->ip)) = MEMORY_SIZE + LIBS_SIZE - 12;                    // skip data and libs space (with jmp) 
-    //                                                                                                 // 12 is num of already printed bytes
     compiler->ip = compiler->memory + MEMORY_SIZE;                                  
 }
 

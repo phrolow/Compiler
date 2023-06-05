@@ -20,7 +20,13 @@ void generateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
     IncreaseRBX(num_vars, compiler);
 
     addCmd(compiler->cmds, CALL, relAddress(name->val->value.name, POISON, compiler));
+
+    #ifdef DOUBLES
+    addCmd(compiler->cmds, SUB_RSP_8, POISON);
+    addCmd(compiler->cmds, MOVSD_RSP_XMM0, POISON);
+    #else
     addCmd(compiler->cmds, PUSH_RAX, POISON);
+    #endif
 
     DecreaseRBX(num_vars, compiler);
 }
@@ -41,7 +47,12 @@ void initCallParams(struct Node *node, struct List *NT, struct Compiler *compile
 
     generateExpr(node->children[LEFT], NT, compiler);
 
+    #ifdef DOUBLES
+    addCmd(compiler->cmds, MOVSD_XMM0_RSP, POISON);
+    addCmd(compiler->cmds, ADD_RSP_8, POISON);
+    #else
     addCmd(compiler->cmds, POP_RAX, POISON);
+    #endif
 }
 
 void generateFuncDef(struct Node *node, struct List *NT, struct Compiler *compiler)
@@ -54,11 +65,6 @@ void generateFuncDef(struct Node *node, struct List *NT, struct Compiler *compil
             compiler->node_main = node;
             return;
         }
-        // else {
-        //     PRINT_("Repeating main");
-
-        //     exit(1);
-        // }
     }
 
     struct Node *params = func->children[RIGHT];
@@ -92,7 +98,11 @@ void generateDefParams(struct Node *node, struct List *NT, struct Compiler *comp
 
     size_t index = searchInNametable(node->children[LEFT], NT);
 
-    addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
+    #ifdef DOUBLES
+    addCmd(compiler->cmds, MOVSD_MEM_XMM0, sizeof(int64_t) * (index - 1));
+    #else
+    addCmd(compiler->cmds, MOV_MEM_RAX, sizeof(int64_t) * (index - 1));
+    #endif
 }
 
 void generateMain(struct Node *node, struct List *NT, struct Compiler *compiler) {

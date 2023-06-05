@@ -42,11 +42,39 @@ void generateMathOper(struct Node *node, struct Compiler *compiler)
         PRINT_D(node_err);
     }
 
+    #ifdef DOUBLES
+
+    addCmd(compiler->cmds, MOVSD_XMM1_RSP, POISON);
+    addCmd(compiler->cmds, ADD_RSP_8, POISON);
+    addCmd(compiler->cmds, MOVSD_XMM2_RSP, POISON);
+    addCmd(compiler->cmds, ADD_RSP_8, POISON);
+
+    #else
+
     addCmd(compiler->cmds, POP_R12, POISON);
     addCmd(compiler->cmds, POP_R13, POISON);
 
+    #endif
+
     switch (KEYW(node))
-    {
+    {   
+        #ifdef DOUBLES
+
+        case KEYW_ADD:
+            addCmd(compiler->cmds, ADDSD_XMM1_XMM2, POISON);
+            break;
+        case KEYW_SUB:
+            addCmd(compiler->cmds, SUBSD_XMM1_XMM2, POISON);
+            break;
+        case KEYW_MUL:
+            addCmd(compiler->cmds, MULSD_XMM1_XMM2, POISON);
+            break;
+        case KEYW_DIV:
+            addCmd(compiler->cmds, DIVSD_XMM1_XMM2, POISON);
+            break;
+
+        #else
+
         case KEYW_ADD:
             addCmd(compiler->cmds, ADD, POISON);
             break;
@@ -63,13 +91,24 @@ void generateMathOper(struct Node *node, struct Compiler *compiler)
             addCmd(compiler->cmds, MOV_R12_RAX, POISON);
             break;
 
+        #endif
+
         default:
             PRINT_("Unexpected operator");
             
             break;
     }
     
+    #ifdef DOUBLES
+
+    addCmd(compiler->cmds, SUB_RSP_8, POISON);
+    addCmd(compiler->cmds, MOVSD_MEM_XMM1, POISON);
+
+    #else
+
     addCmd(compiler->cmds, PUSH_R12, POISON);
+
+    #endif
 }
 
 void generateNum(struct Node *node, struct Compiler *compiler)
