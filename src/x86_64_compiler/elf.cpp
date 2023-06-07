@@ -122,17 +122,17 @@ void generateLibs      (struct Compiler *compiler) {
 
     generateLabel("decimal", POISON, compiler);
 
-    FILE *decimal_out = fopen("src/Libs/decimal", "r");
+    FILE *out_lib = fopen(OUT_LIB_PATH, "r");
 
-    fread(compiler->ip, sizeof(char), OUT_SIZE, decimal_out);
+    fread(compiler->ip, sizeof(char), OUT_SIZE, out_lib);
 
-    fclose(decimal_out);
+    fclose(out_lib);
 
     compiler->ip += (OUT_SIZE / LIB_ALIGNMENT + 1) * LIB_ALIGNMENT;
 
     generateLabel("in", POISON, compiler);
 
-    FILE *in = fopen("src/Libs/in", "r");
+    FILE *in = fopen(IN_LIB_PATH, "r");
 
     fread(compiler->ip, sizeof(char), IN_SIZE, in);
 

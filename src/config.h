@@ -8,6 +8,18 @@
 
 const char * const BINPATH = "binary";
 
+#ifdef DOUBLES
+
+const char * const OUT_LIB_PATH = "src/Libs/doubles_out";
+const char * const IN_LIB_PATH = "src/Libs/doubles_in";
+
+#else
+
+const char * const OUT_LIB_PATH = "src/Libs/decimal";
+const char * const IN_LIB_PATH = "src/Libs/in";
+
+#endif
+
 const double EPSILON = 0.001;
 
 const size_t BUF_ALIGNMENT = 0x1000;

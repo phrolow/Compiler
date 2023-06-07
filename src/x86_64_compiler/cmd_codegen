@@ -71,7 +71,7 @@ DEF_INSTR(0x42f, DIVSD_XMM1_XMM2, 0, 4, 0, "\xf2\x0f\x5e\xca")
 DEF_INSTR(0x430, ANDPD_XMM1_MASK,  1, 8, 1, "\x66\x0f\x54\x0d")
 DEF_INSTR(0x431, COMISD_XMM1_MEM,  1, 8, 1, "\x66\x0f\x2f\x0d")
 DEF_INSTR(0x432, MOVSD_XMM0_CONST, 1, 8, 1, "\xf2\x0f\x10\x05")     // movsd xmm0, [arg]
-
+DEF_INSTR(0x433, SQRTSD,           0, 4, 0, "\xf2\x0f\x51\xc9")     // sqrtsd xmm1, xmm1
 
 
 DEF_INSTR(0x489, JMP_SHORT,    1, 2, 1, "\xeb")

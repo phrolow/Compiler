@@ -42,6 +42,7 @@ void generateReturn    (struct Node *node, struct List *NT, struct Compiler *com
 void generateWhile     (struct Node *node, struct List *NT, struct Compiler *compiler);
 void generateScan      (struct Node *node, struct List *NT, struct Compiler *compiler);
 void generatePrint     (struct Node *node, struct List *NT, struct Compiler *compiler);
+void generateSqrt      (struct Node *node, struct List *NT, struct Compiler *compiler);
 void generateAssign    (struct Node *node, struct List *NT, struct Compiler *compiler);
 
 void generateStmt      (struct Node *node, struct List *NT, struct Compiler *compiler);

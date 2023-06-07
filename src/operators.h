@@ -1,11 +1,11 @@
 // changing 1st six operators' nums is very risky due to its usage in 'expressions.cpp'
 
 DEF_OPER(EQUAL, 0x01, ==)
-DEF_OPER(GREAT, 0x02, >)
-DEF_OPER(LESS, 0x03, <)
+DEF_OPER(LESSOREQ, 0x02, <=)
+DEF_OPER(GREATOREQ, 0x03, >=)
 DEF_OPER(NOTEQUAL, 0x04, !=)
-DEF_OPER(LESSOREQ, 0x05, <=)
-DEF_OPER(GREATOREQ, 0x06, >=)
+DEF_OPER(GREAT, 0x05, >)
+DEF_OPER(LESS, 0x06, <)
 DEF_OPER(NOT, 0x07, !)
 DEF_OPER(AND, 0x08, &&)
 DEF_OPER(OR, 0x09, ||)

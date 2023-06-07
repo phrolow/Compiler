@@ -196,6 +196,12 @@ void generateExpr  (struct Node *node, struct List *NT, struct Compiler *compile
         return;
     }
 
+    if(NODE_KEYW(node, KEYW_SQRT)) {
+        generateSqrt(node, NT, compiler);
+
+        return;
+    }
+
     PRINT_("Undefined operator");
 }
 
@@ -276,6 +282,9 @@ void generateStmt  (struct Node *node, struct List *NT, struct Compiler *compile
         case KEYW_PRINT:
             generatePrint (node, NT, compiler);
             break;
+        case KEYW_SQRT:
+            generateSqrt  (node, NT, compiler);
+            break;
         case KEYW_ADD:
         case KEYW_SUB:
         case KEYW_MUL:
@@ -298,8 +307,8 @@ void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
 
     #ifdef DOUBLES
 
-    XMM_POP(1);
     XMM_POP(2);
+    XMM_POP(1);
     addInstruction(compiler->cmds, SUBSD_XMM1_XMM2, POISON);
 
     #else
@@ -318,7 +327,7 @@ void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
 
     int keyword = KEYW(node);
 
-    if(!keyword || keyword > KEYW_GREATOREQ) {
+    if(!keyword || keyword > KEYW_LESS) {
         PRINT_("Undefined operator");
     }
 
@@ -340,8 +349,8 @@ void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     }
 
     if((keyword - 1) % 3 == 0) {    // JNE -> JGE, JE -> JL
-        keyword = 5 - keyword;
         keyword += 2;
+        keyword = 5 - keyword;
     }
 
     addInstruction(compiler->cmds, JNE + keyword - 1, relAddress(name, POISON, compiler));
@@ -353,10 +362,10 @@ void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     switch (KEYW(node))
     {
         case KEYW_LESS:
-            addInstruction(compiler->cmds, JL, rel_address);
+            addInstruction(compiler->cmds, JGE, rel_address);
             break;
         case KEYW_LESSOREQ:
-            addInstruction(compiler->cmds, JLE, rel_address);
+            addInstruction(compiler->cmds, JG, rel_address);
             break;
         case KEYW_NOTEQUAL:
             addInstruction(compiler->cmds, JE, rel_address);
@@ -365,10 +374,10 @@ void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
             addInstruction(compiler->cmds, JNE, rel_address);
             break;
         case KEYW_GREATOREQ:
-            addInstruction(compiler->cmds, JGE, rel_address);
+            addInstruction(compiler->cmds, JL, rel_address);
             break;
         case KEYW_GREAT:
-            addInstruction(compiler->cmds, JG, rel_address);
+            addInstruction(compiler->cmds, JLE, rel_address);
             break;
         default:
             PRINT_("Undefined operator");
@@ -403,6 +412,7 @@ void generatePrint(struct Node *node, struct List *NT, struct Compiler *compiler
 
     #ifdef DOUBLES
 
+    addInstruction(compiler->cmds, CALL, relAddress("decimal", POISON, compiler));
     addInstruction(compiler->cmds, ADD_RSP_8, POISON);
 
     #else
@@ -440,12 +450,44 @@ void generateScan(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     #ifdef DOUBLES
 
+    addInstruction(compiler->cmds, CALL, relAddress("in", POISON, compiler));
+    addInstruction(compiler->cmds, MOVSD_MEM_XMM0, 8 * (index - 1));
+
     #else
 
     addInstruction(compiler->cmds, CALL, relAddress("in", POISON, compiler));
     addInstruction(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
 
     #endif
+}
+
+
+void generateSqrt(struct Node *node, struct List *NT, struct Compiler *compiler) {
+    TREE_ERROR node_err = NodeVerify(node);
+
+    if(node_err) {
+        PRINT_("Something wrong with node! Code of error:");
+
+        PRINT_D(node_err);
+    }
+
+    if(!NT) {
+        PRINT_("Null name table!");
+    }
+
+    if(!compiler) {
+        PRINT_("Null struct compiler!");
+    }
+
+    if (!node->children[LEFT])
+        PRINT_("No arg for sqrt");
+
+    generateExpr(node->children[LEFT], NT, compiler);
+
+    XMM_POP(1);                                     // TODO: какого хуя
+    XMM_POP(1);
+    addInstruction(compiler->cmds, SQRTSD, POISON);
+    XMM_PUSH(1);
 }
 
 void generateAssign(struct Node *node, struct List *NT, struct Compiler *compiler) {

@@ -265,25 +265,25 @@ node* getPow(token_stk_t *tokens, size_t *index, side_t side) {
 node* getT(token_stk_t *tokens, size_t *index, side_t side) {
     assert(tokens && tokens->tokens && index);
 
-    node *left = getPow(tokens, index, side);
+    node *right = getPow(tokens, index, side);
 
     token_t *token = TokensElem(tokens, *index);
 
     while(token->value.keyword == KEYW_MUL || token->value.keyword == KEYW_DIV) {
         node *nod = getToken(tokens, index, side);
 
-        left->side = LEFT;
+        right->side = RIGHT;
 
-        node *right = getPow(tokens, index, RIGHT);
+        node *left = getPow(tokens, index, LEFT);
 
-        NodeConnect(nod, left);
         NodeConnect(nod, right);
+        NodeConnect(nod, left);
 
-        left = nod;
+        right = nod;
         token = TokensElem(tokens, *index);
     }
 
-    return left;
+    return right;
 }
 
 node* getE(token_stk_t *tokens, size_t *index, side_t side) {
