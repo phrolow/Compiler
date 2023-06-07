@@ -68,27 +68,27 @@ void printArray(cmds_t *array, char *dest) {
 
                         /* ------------ */
 
-void addCmd(cmds_t *array, cmd_type_t name, int arg) {
+void addInstruction(cmds_t *array, int name, int arg) {
     size_t cmd_index = array->num_cmds;
 
     cmd_t *cmd = array->cmds + cmd_index;
 
-    if(cmd_index && (name - array->cmds[cmd_index - 1].name == PUSH_POP_DIFF)) {        // push pop case
-        array->num_cmds--;
-        array->ip -= array->cmds[cmd_index - 1].length;
+    // if(cmd_index && (name - array->cmds[cmd_index - 1].name == PUSH_POP_DIFF)) {        // push pop case
+    //     array->num_cmds--;
+    //     array->ip -= array->cmds[cmd_index - 1].length;
 
-        return;
-    }
+    //     return;
+    // }
 
-    if(cmd->arg < (int) (SCHAR_MAX - INT_SCHAR_SIZE_DIFF) 
-        && arg > (int) (SCHAR_MIN + INT_SCHAR_SIZE_DIFF)
-        && name != MOV_RAX_IMM 
-        && name != CALL) 
-    {
-            cmd->name += SHORT_DIFF;
-            cmd->is_short = true;
+    // if(cmd->arg < (int) (SCHAR_MAX - INT_SCHAR_SIZE_DIFF) 
+    //     && arg > (int) (SCHAR_MIN + INT_SCHAR_SIZE_DIFF)
+    //     && name != MOV_RAX_IMM 
+    //     && name != CALL) 
+    // {
+    //         cmd->name += SHORT_DIFF;
+    //         cmd->is_short = true;
 
-    }
+    // }
 
     switch(name) {
         #include "cmd_codegen"

@@ -44,15 +44,13 @@ void generateMathOper(struct Node *node, struct Compiler *compiler)
 
     #ifdef DOUBLES
 
-    addCmd(compiler->cmds, MOVSD_XMM1_RSP, POISON);
-    addCmd(compiler->cmds, ADD_RSP_8, POISON);
-    addCmd(compiler->cmds, MOVSD_XMM2_RSP, POISON);
-    addCmd(compiler->cmds, ADD_RSP_8, POISON);
+    XMM_POP(1);
+    XMM_POP(2);
 
     #else
 
-    addCmd(compiler->cmds, POP_R12, POISON);
-    addCmd(compiler->cmds, POP_R13, POISON);
+    addInstruction(compiler->cmds, POP_R12, POISON);
+    addInstruction(compiler->cmds, POP_R13, POISON);
 
     #endif
 
@@ -61,34 +59,34 @@ void generateMathOper(struct Node *node, struct Compiler *compiler)
         #ifdef DOUBLES
 
         case KEYW_ADD:
-            addCmd(compiler->cmds, ADDSD_XMM1_XMM2, POISON);
+            addInstruction(compiler->cmds, ADDSD_XMM1_XMM2, POISON);
             break;
         case KEYW_SUB:
-            addCmd(compiler->cmds, SUBSD_XMM1_XMM2, POISON);
+            addInstruction(compiler->cmds, SUBSD_XMM1_XMM2, POISON);
             break;
         case KEYW_MUL:
-            addCmd(compiler->cmds, MULSD_XMM1_XMM2, POISON);
+            addInstruction(compiler->cmds, MULSD_XMM1_XMM2, POISON);
             break;
         case KEYW_DIV:
-            addCmd(compiler->cmds, DIVSD_XMM1_XMM2, POISON);
+            addInstruction(compiler->cmds, DIVSD_XMM1_XMM2, POISON);
             break;
 
         #else
 
         case KEYW_ADD:
-            addCmd(compiler->cmds, ADD, POISON);
+            addInstruction(compiler->cmds, ADD, POISON);
             break;
         case KEYW_SUB:
-            addCmd(compiler->cmds, SUB, POISON);
+            addInstruction(compiler->cmds, SUB, POISON);
             break;
         case KEYW_MUL:
-            addCmd(compiler->cmds, IMUL, POISON);
+            addInstruction(compiler->cmds, IMUL, POISON);
             break;
         case KEYW_DIV:
-            addCmd(compiler->cmds, MOV_RAX_R12, POISON);
-            addCmd(compiler->cmds, XOR_RDX_RDX, POISON);
-            addCmd(compiler->cmds, DIV, POISON);
-            addCmd(compiler->cmds, MOV_R12_RAX, POISON);
+            addInstruction(compiler->cmds, MOV_RAX_R12, POISON);
+            addInstruction(compiler->cmds, XOR_RDX_RDX, POISON);
+            addInstruction(compiler->cmds, DIV, POISON);
+            addInstruction(compiler->cmds, MOV_R12_RAX, POISON);
             break;
 
         #endif
@@ -101,12 +99,11 @@ void generateMathOper(struct Node *node, struct Compiler *compiler)
     
     #ifdef DOUBLES
 
-    addCmd(compiler->cmds, SUB_RSP_8, POISON);
-    addCmd(compiler->cmds, MOVSD_MEM_XMM1, POISON);
+    XMM_PUSH(1);
 
     #else
 
-    addCmd(compiler->cmds, PUSH_R12, POISON);
+    addInstruction(compiler->cmds, PUSH_R12, POISON);
 
     #endif
 }
@@ -121,8 +118,21 @@ void generateNum(struct Node *node, struct Compiler *compiler)
         PRINT_D(node_err);
     }
 
-    addCmd(compiler->cmds, MOV_RAX_IMM, node->val->value.num);
-    addCmd(compiler->cmds, PUSH_RAX, POISON);
+    #ifdef DOUBLES
+
+    *((double *) (compiler->out + CONSTS_LOCATION + sizeof(double) * compiler->num_consts)) = (double) node->val->value.num;
+
+    addInstruction(compiler->cmds, MOVSD_XMM0_CONST, relAddress("consts", POISON, compiler) + sizeof(double) * compiler->num_consts);
+    XMM_PUSH(0);
+
+    compiler->num_consts++;
+
+    #else
+
+    addInstruction(compiler->cmds, MOV_RAX_IMM, node->val->value.num);
+    addInstruction(compiler->cmds, PUSH_RAX, POISON);
+
+    #endif
 }
 
 
@@ -130,8 +140,17 @@ void generateGlobVar(struct Node *node, struct Compiler *compiler) {
     if (searchInNametable(node, compiler->global_NT)) {
         size_t index = indexNametable(node, compiler->global_NT);
 
-        addCmd(compiler->cmds, MOV_R12_MEM, (index - 1) * 8);
-        addCmd(compiler->cmds, PUSH_R12, POISON);
+        #ifdef DOUBLES
+
+        addInstruction(compiler->cmds, MOVSD_XMM1_MEM, (index - 1) * sizeof(double));
+        XMM_PUSH(1);
+
+        #else
+
+        addInstruction(compiler->cmds, MOV_R12_MEM, (index - 1) * sizeof(int64_t));
+        addInstruction(compiler->cmds, PUSH_R12, POISON);
+
+        #endif
     }
 
     PRINT_("Global variable not found");
@@ -190,8 +209,17 @@ void generateVar(struct Node *node, struct List *NT, struct Compiler *compiler) 
     {
         size_t index = indexNametable(node, NT);
 
-        addCmd(compiler->cmds, MOV_R12_MEM, (index - 1) * 8);
-        addCmd(compiler->cmds, PUSH_R12, POISON);
+        #ifdef DOUBLES
+
+        addInstruction(compiler->cmds, MOVSD_XMM1_MEM, (index - 1) * sizeof(int64_t));
+        XMM_PUSH(1);
+
+        #else
+
+        addInstruction(compiler->cmds, MOV_R12_MEM, (index - 1) * 8);
+        addInstruction(compiler->cmds, PUSH_R12, POISON);
+
+        #endif
 
         return;
     }
@@ -268,40 +296,86 @@ void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
     if (!isLogOper(node)) 
         PRINT_("There is no logical operator");
 
-    addCmd(compiler->cmds, POP_R12,     POISON);
-    addCmd(compiler->cmds, POP_R13,     POISON);
-    addCmd(compiler->cmds, CMP_R12_R13, POISON);
+    #ifdef DOUBLES
+
+    XMM_POP(1);
+    XMM_POP(2);
+    addInstruction(compiler->cmds, SUBSD_XMM1_XMM2, POISON);
+
+    #else
+
+    addInstruction(compiler->cmds, POP_R12,     POISON);
+    addInstruction(compiler->cmds, POP_R13,     POISON);
+    addInstruction(compiler->cmds, CMP_R12_R13, POISON);
+
+    #endif
 
     char name[WORD_MAX_LEN + 1] = {};
 
     sprintf(name, "%s_%d", mark, num);
+
+    #ifdef DOUBLES
+
+    int keyword = KEYW(node);
+
+    if(!keyword || keyword > KEYW_GREATOREQ) {
+        PRINT_("Undefined operator");
+    }
+
+    switch ((keyword - 1) % 3)
+    {
+        case 0: // JE or JNE
+            addInstruction(compiler->cmds, ANDPD_XMM1_MASK, relAddress("abs_mask", POISON, compiler));  // get abs
+            addInstruction(compiler->cmds, COMISD_XMM1_MEM, relAddress("epsilon", POISON, compiler));   // cmp |xmm1-xmm2|, epsilon
+            break;
+        case 1: // JG or JLE
+            addInstruction(compiler->cmds, COMISD_XMM1_MEM, relAddress("epsilon", POISON, compiler));
+            break;
+        case 2: // JL or JGE
+            addInstruction(compiler->cmds, COMISD_XMM1_MEM, relAddress("neg_epsilon", POISON, compiler));
+            break;
+        default:
+            PRINT_("Undefined operator");
+            break;
+    }
+
+    if((keyword - 1) % 3 == 0) {    // JNE -> JGE, JE -> JL
+        keyword = 5 - keyword;
+        keyword += 2;
+    }
+
+    addInstruction(compiler->cmds, JNE + keyword - 1, relAddress(name, POISON, compiler));
+
+    #else
 
     u_int32_t rel_address = relAddress(name, POISON, compiler);
 
     switch (KEYW(node))
     {
         case KEYW_LESS:
-            addCmd(compiler->cmds, JL, rel_address);
+            addInstruction(compiler->cmds, JL, rel_address);
             break;
         case KEYW_LESSOREQ:
-            addCmd(compiler->cmds, JLE, rel_address);
+            addInstruction(compiler->cmds, JLE, rel_address);
             break;
         case KEYW_NOTEQUAL:
-            addCmd(compiler->cmds, JE, rel_address);
+            addInstruction(compiler->cmds, JE, rel_address);
             break;
         case KEYW_EQUAL:
-            addCmd(compiler->cmds, JNE, rel_address);
+            addInstruction(compiler->cmds, JNE, rel_address);
             break;
         case KEYW_GREATOREQ:
-            addCmd(compiler->cmds, JGE, rel_address);
+            addInstruction(compiler->cmds, JGE, rel_address);
             break;
         case KEYW_GREAT:
-            addCmd(compiler->cmds, JG, rel_address);
+            addInstruction(compiler->cmds, JG, rel_address);
             break;
         default:
             PRINT_("Undefined operator");
             break;
     }
+
+    #endif
 }
 
 void generatePrint(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -327,8 +401,16 @@ void generatePrint(struct Node *node, struct List *NT, struct Compiler *compiler
 
     generateExpr(node->children[LEFT], NT, compiler);
 
-    addCmd(compiler->cmds, CALL, relAddress("decimal", POISON, compiler));
-    addCmd(compiler->cmds, ADD_RSP_8, POISON);
+    #ifdef DOUBLES
+
+    addInstruction(compiler->cmds, ADD_RSP_8, POISON);
+
+    #else
+
+    addInstruction(compiler->cmds, CALL, relAddress("decimal", POISON, compiler));
+    addInstruction(compiler->cmds, ADD_RSP_8, POISON);
+
+    #endif
 }
 
 void generateScan(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -356,8 +438,14 @@ void generateScan(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     size_t index = indexNametable(node->children[LEFT], NT);
 
-    addCmd(compiler->cmds, CALL, relAddress("in", POISON, compiler));
-    addCmd(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
+    #ifdef DOUBLES
+
+    #else
+
+    addInstruction(compiler->cmds, CALL, relAddress("in", POISON, compiler));
+    addInstruction(compiler->cmds, MOV_MEM_RAX, 8 * (index - 1));
+
+    #endif
 }
 
 void generateAssign(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -403,7 +491,7 @@ void generateIf(struct Node *node, struct List *NT, struct Compiler *compiler) {
         generateCond(condition, NT, compiler, "ELSE", counter);
         GenerateStmts(if_stmts, NT, compiler);
 
-        addCmd(compiler->cmds, JMP, relAddress("END_IF_%lu", counter, compiler));
+        addInstruction(compiler->cmds, JMP, relAddress("END_IF_%lu", counter, compiler));
 
         generateLabelFromCmds("ELSE_%lu", counter, compiler);
 
@@ -436,7 +524,7 @@ void generateWhile(struct Node *node, struct List *NT, struct Compiler *compiler
     generateCond(condition, NT, compiler, "END_WHILE", counter);
     GenerateStmts(while_stmts, NT, compiler);
 
-    addCmd(compiler->cmds, JMP, relAddress("WHILE_%lu", counter, compiler));
+    addInstruction(compiler->cmds, JMP, relAddress("WHILE_%lu", counter, compiler));
 
     generateLabelFromCmds("END_WHILE_%lu", counter, compiler);
 }
@@ -450,8 +538,16 @@ void generateReturn(struct Node *node, struct List *NT, struct Compiler *compile
     if(node->children[LEFT]) {
         generateExpr(node->children[LEFT], NT, compiler);
 
-        addCmd(compiler->cmds, POP_RAX, POISON);
+        #ifdef DOUBLES
+
+        XMM_POP(0);
+
+        #else
+
+        addInstruction(compiler->cmds, POP_RAX, POISON);
+
+        #endif
     }
 
-    addCmd(compiler->cmds, RET, POISON);
+    addInstruction(compiler->cmds, RET, POISON);
 }

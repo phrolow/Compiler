@@ -93,6 +93,27 @@ void generateElfHead(Compiler *compiler) {
 void generateMemory(struct Compiler *compiler) {
     compiler->memory = compiler->ip;
 
+    compiler->ip += LIBS_BUFS_OFFSET;
+
+    #ifdef DOUBLES
+
+    *((double*) (compiler->out + EPSILON_LOCATION)) = EPSILON;
+    generateLabel("epsilon", EPSILON_LOCATION, compiler);
+    compiler->ip += sizeof(double);
+
+    *((double*) (compiler->out + MINUS_EPSILON_LOCATION)) = -EPSILON;
+    generateLabel("neg_epsilon", MINUS_EPSILON_LOCATION, compiler);
+    compiler->ip += sizeof(double);
+
+    *((uint64_t*) (compiler->out + ABS_MASK_LOCATION)) = ABS_MASK;
+    *((uint64_t*) (compiler->out + ABS_MASK_LOCATION + sizeof(uint64_t))) = ABS_MASK;
+    generateLabel("abs_mask", ABS_MASK_LOCATION, compiler);
+    compiler->ip += 2 * sizeof(uint64_t);
+
+    #endif
+
+    generateLabel("consts", CONSTS_LOCATION, compiler);
+
     compiler->ip = compiler->memory + MEMORY_SIZE;                                  
 }
 

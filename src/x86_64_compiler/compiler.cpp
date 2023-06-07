@@ -16,6 +16,8 @@ struct Compiler *newCompiler(char *out) {
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = 0;
+    compiler->num_consts = 0;
+
     compiler->ip = out;
 
     compiler->offset_data = 0;
@@ -73,6 +75,8 @@ void compilerDtor(struct Compiler *compiler) {
     compiler->local_vars = NULL;
 
     compiler->free_memory_index = POISON;
+    compiler->num_consts = POISON;
+    
     compiler->ip = NULL;
 
     compiler->offset_data = POISON;

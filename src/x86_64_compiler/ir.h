@@ -40,6 +40,6 @@ void cmdArrayDtor(cmds_t *array);
 
 void printArray(cmds_t *array, char *dest);
 
-void addCmd(cmds_t *array, cmd_type_t name, int arg);
+void addInstruction(cmds_t *array, int name, int arg);
 
 #endif

@@ -68,11 +68,11 @@ int isLogOper(struct Node *node) {
 }
 
 void IncreaseRBX(const size_t number, struct Compiler *compiler) {
-    addCmd(compiler->cmds, ADD_RBX, number * 8);
+    addInstruction(compiler->cmds, ADD_RBX, number * 8);
 }
 
 void DecreaseRBX(const size_t number, struct Compiler *compiler) {
-    addCmd(compiler->cmds, SUB_RBX, number * 8);
+    addInstruction(compiler->cmds, SUB_RBX, number * 8);
 }
 
 void generateGS(struct Node *node, struct Compiler *compiler) {
@@ -87,13 +87,13 @@ void generateGS(struct Node *node, struct Compiler *compiler) {
 
     compiler->instructions = compiler->ip;
 
-    BYTE3(0x48, 0xc7, 0xc3); INT(X64_VA_START + DATA_START 
-                                        + LIBS_BUFS_OFFSET);    // mov rbx, 0x401000
-    BYTE1(0xe8); putAddress("main", POISON, compiler);          // call main
-    BYTE7(0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00);            // mov rax, 0x3c
-    BYTE3(0x48, 0x31, 0xff);                                    // xor rdi, rdi
-    BYTE2(0x0f, 0x05);                                          // syscall
+    BYTE3(0x48, 0xc7, 0xc3); INT(X64_VA_START + CONSTS_LOCATION + 8 * compiler->num_consts);   // mov rbx, CONSTS_LOCATION
+    BYTE1(0xe8); putAddress("main", POISON, compiler);              // call main
+    BYTE7(0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00);                // mov rax, 0x3c
+    BYTE3(0x48, 0x31, 0xff);                                        // xor rdi, rdi
+    BYTE2(0x0f, 0x05);                                              // syscall
 
+    compiler->num_consts = 0;                                       // for 2nd initizalization
     compiler->cmds->ip = compiler->ip;
 
     while (node->children[RIGHT])
@@ -149,8 +149,17 @@ void initGlobVar(struct Node *node, struct Compiler *compiler) {
 
     generateGlobExpr(node->children[RIGHT], compiler);
 
-    addCmd(compiler->cmds, POP_R12, POISON);
-    addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
+    #ifdef DOUBLES
+
+    XMM_POP(1);
+    addInstruction(compiler->cmds, MOVSD_MEM_XMM1, (index - 1) * sizeof(double));
+
+    #else
+
+    addInstruction(compiler->cmds, POP_R12, POISON);
+    addInstruction(compiler->cmds, MOV_MEM_R12, (index - 1) * sizeof(int64_t));
+
+    #endif
 }
 
 void initVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
@@ -165,8 +174,17 @@ void initVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
         assert(index >= 1);
 
-        addCmd(compiler->cmds, POP_R12, POISON);
-        addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
+        #ifdef DOUBLES
+
+        XMM_POP(1);
+        addInstruction(compiler->cmds, MOVSD_MEM_XMM1, (index - 1) * 8);
+
+        #else
+
+        addInstruction(compiler->cmds, POP_R12, POISON);
+        addInstruction(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
+
+        #endif
 
         return;
     }
@@ -179,6 +197,15 @@ void initVar(struct Node *node, struct List *NT, struct Compiler *compiler) {
 
     generateExpr(node->children[RIGHT], NT, compiler);
 
-    addCmd(compiler->cmds, POP_R12, POISON);
-    addCmd(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
+    #ifdef DOUBLES
+
+    XMM_POP(1);
+    addInstruction(compiler->cmds, MOVSD_MEM_XMM1, (index - 1) * 8);
+
+    #else
+
+    addInstruction(compiler->cmds, POP_R12, POISON);
+    addInstruction(compiler->cmds, MOV_MEM_R12, (index - 1) * 8);
+
+    #endif
 }

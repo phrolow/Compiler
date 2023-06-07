@@ -19,13 +19,16 @@ void generateCall(struct Node *node, struct List *NT, struct Compiler *compiler)
 
     IncreaseRBX(num_vars, compiler);
 
-    addCmd(compiler->cmds, CALL, relAddress(name->val->value.name, POISON, compiler));
+    addInstruction(compiler->cmds, CALL, relAddress(name->val->value.name, POISON, compiler));
 
     #ifdef DOUBLES
-    addCmd(compiler->cmds, SUB_RSP_8, POISON);
-    addCmd(compiler->cmds, MOVSD_RSP_XMM0, POISON);
+
+    XMM_PUSH(0);
+
     #else
-    addCmd(compiler->cmds, PUSH_RAX, POISON);
+
+    addInstruction(compiler->cmds, PUSH_RAX, POISON);
+
     #endif
 
     DecreaseRBX(num_vars, compiler);
@@ -48,10 +51,13 @@ void initCallParams(struct Node *node, struct List *NT, struct Compiler *compile
     generateExpr(node->children[LEFT], NT, compiler);
 
     #ifdef DOUBLES
-    addCmd(compiler->cmds, MOVSD_XMM0_RSP, POISON);
-    addCmd(compiler->cmds, ADD_RSP_8, POISON);
+
+    XMM_POP(0);
+
     #else
-    addCmd(compiler->cmds, POP_RAX, POISON);
+
+    addInstruction(compiler->cmds, POP_RAX, POISON);
+
     #endif
 }
 
@@ -99,9 +105,13 @@ void generateDefParams(struct Node *node, struct List *NT, struct Compiler *comp
     size_t index = searchInNametable(node->children[LEFT], NT);
 
     #ifdef DOUBLES
-    addCmd(compiler->cmds, MOVSD_MEM_XMM0, sizeof(int64_t) * (index - 1));
+
+    addInstruction(compiler->cmds, MOVSD_MEM_XMM0, sizeof(double) * (index - 1));
+
     #else
-    addCmd(compiler->cmds, MOV_MEM_RAX, sizeof(int64_t) * (index - 1));
+
+    addInstruction(compiler->cmds, MOV_MEM_RAX, sizeof(int64_t) * (index - 1));
+
     #endif
 }
 
