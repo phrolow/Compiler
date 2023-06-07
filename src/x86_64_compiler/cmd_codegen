@@ -51,17 +51,17 @@ DEF_INSTR(0x41f, XOR_RDX_RDX,  0, 3, 0, "\x48\x31\xd2")
 DEF_INSTR(0x420, MOVSD_XMM0_MEM, 1, 8, 0, "\xf2\x0f\x10\x83")       // movsd xmm0, [rbx + arg]
 DEF_INSTR(0x421, MOVSD_MEM_XMM0, 1, 8, 0, "\xf2\x0f\x11\x83")       // movsd [rbx + arg], xmm0
 DEF_INSTR(0x422, MOVSD_XMM0_RSP, 0, 5, 0, "\xf2\x0f\x10\x04\x24")   // movsd xmm0, [rsp]
-DEF_INSTR(0x423, MOVSD_RSP_XMM0, 0, 5, 0, "\xf2\x0f\x11\x04\x24")   // movsd [rsp], xmm0
+DEF_INSTR(0x462, MOVSD_RSP_XMM0, 0, 5, 0, "\xf2\x0f\x11\x04\x24")   // movsd [rsp], xmm0
 
 DEF_INSTR(0x424, MOVSD_XMM1_MEM, 1, 8, 0, "\xf2\x0f\x10\x8b")       // movsd xmm1, [rbx + arg]
 DEF_INSTR(0x425, MOVSD_MEM_XMM1, 1, 8, 0, "\xf2\x0f\x11\x8b")       // movsd [rbx + arg], xmm1
 DEF_INSTR(0x426, MOVSD_XMM1_RSP, 0, 5, 0, "\xf2\x0f\x10\x0c\x24")   // movsd xmm1, [rsp]
-DEF_INSTR(0x427, MOVSD_RSP_XMM1, 0, 5, 0, "\xf2\x0f\x11\x0c\x24")   // movsd [rsp], xmm1
+DEF_INSTR(0x466, MOVSD_RSP_XMM1, 0, 5, 0, "\xf2\x0f\x11\x0c\x24")   // movsd [rsp], xmm1
 
 DEF_INSTR(0x428, MOVSD_XMM2_MEM, 1, 8, 0, "\xf2\x0f\x10\x93")       // movsd xmm2, [rbx + arg]
 DEF_INSTR(0x429, MOVSD_MEM_XMM2, 1, 8, 0, "\xf2\x0f\x11\x93")       // movsd [rbx + arg], xmm2
 DEF_INSTR(0x42a, MOVSD_XMM2_RSP, 0, 5, 0, "\xf2\x0f\x10\x14\x24")   // movsd xmm2, [rsp]
-DEF_INSTR(0x42b, MOVSD_RSP_XMM2, 0, 5, 0, "\xf2\x0f\x11\x14\x24")   // movsd [rsp], xmm2
+DEF_INSTR(0x46a, MOVSD_RSP_XMM2, 0, 5, 0, "\xf2\x0f\x11\x14\x24")   // movsd [rsp], xmm2
 
 DEF_INSTR(0x42c, ADDSD_XMM1_XMM2, 0, 4, 0, "\xf2\x0f\x58\xca")
 DEF_INSTR(0x42d, SUBSD_XMM1_XMM2, 0, 4, 0, "\xf2\x0f\x5c\xca")
@@ -75,12 +75,26 @@ DEF_INSTR(0x433, SQRTSD,           0, 4, 0, "\xf2\x0f\x51\xc9")     // sqrtsd xm
 
 
 DEF_INSTR(0x489, JMP_SHORT,    1, 2, 1, "\xeb")
+
+#ifdef DOUBLES
+
+DEF_INSTR(0x48a, JNE_SHORT,    1, 2, 1, "\x75")
+DEF_INSTR(0x48b, JA_SHORT,     1, 2, 1, "\x77")
+DEF_INSTR(0x48c, JB_SHORT,     1, 2, 1, "\x72")
+DEF_INSTR(0x48d, JE_SHORT,     1, 2, 1, "\x74")
+DEF_INSTR(0x48e, JBE_SHORT,    1, 2, 1, "\x76")
+DEF_INSTR(0x48f, JAE_SHORT,    1, 2, 1, "\x73")
+
+#else
+
 DEF_INSTR(0x48a, JNE_SHORT,    1, 2, 1, "\x75")
 DEF_INSTR(0x48b, JG_SHORT,     1, 2, 1, "\x7f")
 DEF_INSTR(0x48c, JL_SHORT,     1, 2, 1, "\x7c")
 DEF_INSTR(0x48d, JE_SHORT,     1, 2, 1, "\x74")
 DEF_INSTR(0x48e, JLE_SHORT,    1, 2, 1, "\x7e")
 DEF_INSTR(0x48f, JGE_SHORT,    1, 2, 1, "\x7d")
+
+#endif
 
 DEF_INSTR(0x498, MOV_R12_MEM_SHORT,  1, 4, 0, "\x4c\x8b\x63")   // mov r12, [rbx + arg]
 DEF_INSTR(0x499, MOV_MEM_RAX_SHORT,  1, 4, 0, "\x48\x89\x43")   // mov [rbx + arg], rax

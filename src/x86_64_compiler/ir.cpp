@@ -73,22 +73,35 @@ void addInstruction(cmds_t *array, int name, int arg) {
 
     cmd_t *cmd = array->cmds + cmd_index;
 
-    // if(cmd_index && (name - array->cmds[cmd_index - 1].name == PUSH_POP_DIFF)) {        // push pop case
-    //     array->num_cmds--;
-    //     array->ip -= array->cmds[cmd_index - 1].length;
+    #ifdef DOUBLES
 
-    //     return;
-    // }
+    if(cmd_index && (name - array->cmds[cmd_index - 1].name == PUSH_POP_DIFF)) {        // push pop case
+        array->num_cmds-=2;
+        array->ip -= (array->cmds[cmd_index - 1].length + array->cmds[cmd_index - 2].length);
 
-    // if(cmd->arg < (int) (SCHAR_MAX - INT_SCHAR_SIZE_DIFF) 
-    //     && arg > (int) (SCHAR_MIN + INT_SCHAR_SIZE_DIFF)
-    //     && name != MOV_RAX_IMM 
-    //     && name != CALL) 
-    // {
-    //         cmd->name += SHORT_DIFF;
-    //         cmd->is_short = true;
+        return;
+    }
 
-    // }
+    #else
+
+    if(cmd_index && (name - array->cmds[cmd_index - 1].name == PUSH_POP_DIFF)) {        // push pop case
+        array->num_cmds--;
+        array->ip -= array->cmds[cmd_index - 1].length;
+
+        return;
+    }
+
+    #endif
+
+    if(cmd->arg < (int) (SCHAR_MAX - INT_SCHAR_SIZE_DIFF) 
+        && arg > (int) (SCHAR_MIN + INT_SCHAR_SIZE_DIFF)
+        && name != MOV_RAX_IMM 
+        && name != CALL) 
+    {
+            cmd->name += SHORT_DIFF;
+            cmd->is_short = true;
+
+    }
 
     switch(name) {
         #include "cmd_codegen"
