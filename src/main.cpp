@@ -18,16 +18,18 @@ int main(int argc, char **argv) {
 
     char *out = argv[2];
 
-    if(!out) {
+    if(argc < 3) {
         int len = strchr(argv[1], '.') - argv[1];
 
-        out = (char *) calloc(len, sizeof(char));
+        out = (char *) calloc(len + 1, sizeof(char));
+
+        strncpy(out, argv[1], len);
     }
 
-    languageCompile(argv[1], argv[2]);
+    languageCompile(argv[1], out);
     printf("Compiled\n");
 
-    if(!argv[2]) {
+    if(argc < 3) {
         free(out);
     }
 
