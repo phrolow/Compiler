@@ -192,16 +192,16 @@ elf_header->e_shstrndx  = 0;          // Contains index of the section header ta
 За программный заголовок у нас отвечает структура **Elf64_Phdr**. Вот её описание из **elf.h**:
 
 ```c
-typedef struct elf32_phdr {
-  Elf32_Word	p_type;
-  Elf32_Off	    p_offset;
-  Elf32_Addr	p_vaddr;
-  Elf32_Addr	p_paddr;
-  Elf32_Word	p_filesz;
-  Elf32_Word	p_memsz;
-  Elf32_Word	p_flags;
-  Elf32_Word	p_align;
-} Elf32_Phdr;
+typedef struct elf64_phdr {
+  Elf64_Word p_type;
+  Elf64_Word p_flags;
+  Elf64_Off p_offset;		/* Segment file offset */
+  Elf64_Addr p_vaddr;		/* Segment virtual address */
+  Elf64_Addr p_paddr;		/* Segment physical address */
+  Elf64_Xword p_filesz;		/* Segment size in file */
+  Elf64_Xword p_memsz;		/* Segment size in memory */
+  Elf64_Xword p_align;		/* Segment alignment, file & memory */
+} Elf64_Phdr;
 ```
 
 <details>
