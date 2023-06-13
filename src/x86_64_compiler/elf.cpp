@@ -140,3 +140,65 @@ void generateLibs      (struct Compiler *compiler) {
 
     compiler->ip = compiler->libs + LIBS_SIZE;
 }
+
+void generateGS(struct Node *node, struct Compiler *compiler) {
+    if (!NODE_KEYW(node, KEYW_STMT)) {
+        PRINT_("It's not global statement");
+
+        return;
+    }
+
+    compiler->cmds = (cmds_t*) calloc(1, sizeof(cmds_t));
+    cmdArrayCtor(compiler->cmds, NUM_CMDS, compiler->ip);
+
+    compiler->instructions = compiler->ip;
+
+    BYTE3(0x48, 0xc7, 0xc3); INT(X64_VA_START + CONSTS_LOCATION + 8 * compiler->num_consts);   // mov rbx, CONSTS_LOCATION
+    BYTE1(0xe8); putAddress("main", POISON, compiler);              // call main
+    BYTE7(0x48, 0xc7, 0xc0, 0x3c, 0x00, 0x00, 0x00);                // mov rax, 0x3c
+    BYTE3(0x48, 0x31, 0xff);                                        // xor rdi, rdi
+    BYTE2(0x0f, 0x05);                                              // syscall
+
+    compiler->num_consts = 0;                                       // for 2nd initizalization
+    compiler->cmds->ip = compiler->ip;
+
+    while (node->children[RIGHT])
+        node = node->children[RIGHT];
+
+    struct Node *bottom = node;
+
+    while (node) {
+        if (KEYW(node->children[LEFT]) == KEYW_ASSIGN)
+        {
+            generateAssign(node, NULL, compiler);
+        }
+
+        node = node->parent;
+    }
+
+    struct List *NT = newList();
+
+    node = bottom;
+
+    while (node) {
+        if (NODE_KEYW(node->children[LEFT], KEYW_DEFINE)) {
+            generateFuncDef(node->children[LEFT], NT, compiler);
+        } else if (NODE_KEYW(node->children[LEFT], KEYW_ASSIGN)) {
+            node = node->parent;
+            continue;
+        } else {
+            PRINT_("Invalid statement");
+
+            ListDtor(NT);
+
+            return;
+        }
+        node = node->parent;
+    }
+
+    generateMain(compiler->node_main, NT, compiler);
+    
+    printArray(compiler->cmds, compiler->ip);
+
+    ListDtor(NT);
+}

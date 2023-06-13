@@ -313,8 +313,8 @@ void generateJump(struct Node *node, struct List *NT, struct Compiler *compiler,
 
     #else
 
-    addInstruction(compiler->cmds, POP_R12,     POISON);
     addInstruction(compiler->cmds, POP_R13,     POISON);
+    addInstruction(compiler->cmds, POP_R12,     POISON);
     addInstruction(compiler->cmds, CMP_R12_R13, POISON);
 
     #endif

@@ -16,17 +16,22 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
+    char *out = argv[2];
+
+    if(!out) {
+        int len = strchr(argv[1], '.') - argv[1];
+
+        out = (char *) calloc(len, sizeof(char));
+    }
+
     languageCompile(argv[1], argv[2]);
     printf("Compiled\n");
 
+    if(!argv[2]) {
+        free(out);
+    }
+
     #else
-    printf("TESTING FACT\n");
-
-    languageCompile("Code/fact.txt", BINPATH);
-    
-    runTests("Tests/fact_tests.txt");
-
-    measure();
 
     printf("\nTESTING FIB\n");
 
@@ -36,6 +41,13 @@ int main(int argc, char **argv) {
 
     measure();
 
+    printf("TESTING FACT\n");
+
+    languageCompile("Code/fact.txt", BINPATH);
+    
+    runTests("Tests/fact_tests.txt");
+
+    measure();
     #endif
 
     return 0;
