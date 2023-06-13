@@ -11,8 +11,6 @@ main {
     i = i - 1;
  }
 
- x = fib(a);
-
  print x;
 
  return;

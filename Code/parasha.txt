@@ -1,5 +1,0 @@
-main {
- mv = 0.5;
-
- return;
-}

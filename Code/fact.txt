@@ -5,6 +5,8 @@ main {
 
  count = 100000;
 
+ x = 0;
+
  while(count > 0) {
   x = fact(a);
   
